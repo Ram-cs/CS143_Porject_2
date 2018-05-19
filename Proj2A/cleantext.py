@@ -103,6 +103,33 @@ _CONTRACTIONS = {
     "youve": "you've"
 }
 
+import re
+
+def string_manupulation:
+    data = open("comments.txt", "r").read()
+
+    result = []
+    split_lines_list = data.splitlines()
+    for comment in split_lines_list:
+        newLine_withSpace = comment.replace('\\n', '') #replace newline with empty
+        newLine_withSpace = re.sub(r"http\S+", "", newLine_withSpace) #replace URL with Empty string
+        newLine_withSpace = re.sub(' +',' ',newLine_withSpace) #removing mutiple contigous splace in the string
+        newLine_withSpace = re.findall(r"[\w'-]+|[.]", newLine_withSpace) #Separate all external punctuation such as periods, commas, etc. [.,!?;:]
+        
+        result.append(newLine_withSpace)
+
+    print(result)
+    # Join the list
+    temp_list = []
+    for i in result:
+        combine = ' '.join(i)
+        combine = combine.lower() #lowercase
+        temp_list.append(combine)
+
+
+    for val in temp_list:
+        print(val)
+
 # You may need to write regular expressions.
 
 def sanitize(text):
