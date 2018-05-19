@@ -8,7 +8,6 @@ import re
 import string
 import argparse
 
-
 __author__ = ""
 __email__ = ""
 
@@ -103,55 +102,65 @@ _CONTRACTIONS = {
     "youve": "you've"
 }
 
-import re
 
-def string_manupulation:
-    data = open("comments.txt", "r").read()
+data = open("comments.txt", "r").read()
 
+def string_manupulation(plain_text):
     result = []
-    split_lines_list = data.splitlines()
+    temp_list = []
+    
+    split_lines_list = plain_text.splitlines()
     for comment in split_lines_list:
-        newLine_withSpace = comment.replace('\\n', '') #replace newline with empty
-        newLine_withSpace = re.sub(r"http\S+", "", newLine_withSpace) #replace URL with Empty string
-        newLine_withSpace = re.sub(' +',' ',newLine_withSpace) #removing mutiple contigous splace in the string
-        newLine_withSpace = re.findall(r"[\w'-]+|[.]", newLine_withSpace) #Separate all external punctuation such as periods, commas, etc. [.,!?;:]
+        newLine_withSpace = comment.replace('\\n', '')  # replace newline with empty
+        newLine_withSpace = re.sub(r"http\S+", "", newLine_withSpace)  # replace URL with Empty string
+        newLine_withSpace = re.sub(' +', ' ', newLine_withSpace)  # removing mutiple contigous splace in the string
+        newLine_withSpace = re.findall(r"[\w'-]+|[.]",newLine_withSpace)  # Separate all external punctuation such as periods, commas, etc. [.,!?;:]
         
         result.append(newLine_withSpace)
+    
+    
+    # replace appropriate word
+    for value in result:
+        for word in value:
+            if word in _CONTRACTIONS:
+                word.replace(word, _CONTRACTIONS[word])
 
-    print(result)
-    # Join the list
-    temp_list = []
-    for i in result:
-        combine = ' '.join(i)
-        combine = combine.lower() #lowercase
-        temp_list.append(combine)
+#join the words
+for i in result:
+    combine = ' '.join(i)
+    combine = combine.lower()  # lowercase
+    temp_list.append(combine)
+    
+    #print each line of string
+    for string in temp_list:
+        print(string)
 
 
-    for val in temp_list:
-        print(val)
+
 
 # You may need to write regular expressions.
 
-def sanitize(text):
-    """Do parse the text in variable "text" according to the spec, and return
-    a LIST containing FOUR strings 
-    1. The parsed text.
-    2. The unigrams
-    3. The bigrams
-    4. The trigrams
-    """
-
-    # YOUR CODE GOES BELOW:
-
-    return [parsed_text, unigrams, bigrams, trigrams]
+# def sanitize(text):
+#     """Do parse the text in variable "text" according to the spec, and return
+#     a LIST containing FOUR strings
+#     1. The parsed text.
+#     2. The unigrams
+#     3. The bigrams
+#     4. The trigrams
+#     """
+#
+#     # YOUR CODE GOES BELOW:
+#
+#     return [parsed_text, unigrams, bigrams, trigrams]
 
 
 if __name__ == "__main__":
-    # This is the Python main function.
-    # You should be able to run
-    # python cleantext.py <filename>
-    # and this "main" function will open the file,
-    # read it line by line, extract the proper value from the JSON,
-    # pass to "sanitize" and print the result as a list.
+    string_manupulation(data)
+# This is the Python main function.
+# You should be able to run
+# python cleantext.py <filename>
+# and this "main" function will open the file,
+# read it line by line, extract the proper value from the JSON,
+# pass to "sanitize" and print the result as a list.
 
-    # YOUR CODE GOES BELOW.
+# YOUR CODE GOES BELOW.
