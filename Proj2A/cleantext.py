@@ -115,6 +115,7 @@ def build_bigrams(result):
     joined_sentence = ' '.join(return_list)
     return joined_sentence.lower()
 
+# reference : http://locallyoptimal.com/blog/2013/01/20/elegant-n-gram-generation-in-python/
 def bigram_helper(input_list):
     bigram_list = []
     for i in range(len(input_list)-1):
