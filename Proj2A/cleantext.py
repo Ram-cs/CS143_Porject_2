@@ -166,8 +166,8 @@ def string_manupulation(plain_text):
         temp_list.append(combine)
         
         #print each line of string
-        for string in temp_list:
-            print(string)
+    for string in temp_list:
+        print(string)
 
     print("unigram")
 #join the words for Unigrams
@@ -177,12 +177,14 @@ def string_manupulation(plain_text):
         n_gram_temp_list.append(combine)
         
         #print each line of string
-        for string in n_gram_temp_list:
-            print(string)
+    for string in n_gram_temp_list:
+        print(string)
                 
     print("bigrams")
     biigrams =build_bigrams(n_gram_result)
     print (biigrams)
+
+
 
 
 # You may need to write regular expressions.
