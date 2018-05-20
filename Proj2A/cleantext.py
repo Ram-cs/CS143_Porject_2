@@ -109,26 +109,38 @@ def string_manupulation(plain_text):
     result = []
     temp_list = []
     
+    n_gram_result = []
+    n_gram_temp_list=[]
+    
     split_lines_list = plain_text.splitlines()
     for comment in split_lines_list:
         newLine_withSpace = comment.replace('\\n', '')  # replace newline with empty
         newLine_withSpace = re.sub(r"http\S+", "", newLine_withSpace)  # replace URL with Empty string
         newLine_withSpace = re.sub(' +', ' ', newLine_withSpace)  # removing mutiple contigous splace in the string
         newLine_withSpace = re.sub('[^a-zA-Z0-9.,!?;:\s]+', '', newLine_withSpace)  # removing mutiple contigous splace in the string
+        
+        n_gram_newLine_withSpace = re.findall(r"[\w'-]+|[.]",newLine_withSpace)
+        n_gram_result.append(n_gram_newLine_withSpace)
+        
+        
         newLine_withSpace = re.findall(r"[\w'-]+|[.]|[.,!?;:]",newLine_withSpace)  # Separate all external punctuation such as periods, commas, etc. [.,!?;:]
         
         result.append(newLine_withSpace)
     
     
-    # replace appropriate word
+    # replace appropriate word for parse comment
     for value in result:
         for index, word in enumerate(value):
             if word.lower() in _CONTRACTIONS:
                 value[index]=_CONTRACTIONS[word.lower()]
-                print(word)
+    # replace appropriate word for Unigrams
+    for value in n_gram_result:
+        for index, word in enumerate(value):
+            if word.lower() in _CONTRACTIONS:
+                value[index]=_CONTRACTIONS[word.lower()]
 
-#join the words
-    print(result)
+    print("parse comment:")
+#join the words for parse comment
     for i in result:
         combine = ' '.join(i)
         combine = combine.lower()  # lowercase
@@ -136,6 +148,17 @@ def string_manupulation(plain_text):
         
         #print each line of string
         for string in temp_list:
+            print(string)
+
+    print("unigram")
+#join the words for Unigrams
+    for i in n_gram_result:
+        combine = ' '.join(i)
+        combine = combine.lower()  # lowercase
+        n_gram_temp_list.append(combine)
+        
+        #print each line of string
+        for string in n_gram_temp_list:
             print(string)
 
 
