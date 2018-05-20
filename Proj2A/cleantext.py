@@ -105,6 +105,25 @@ _CONTRACTIONS = {
 
 data = open("comments.txt", "r").read()
 
+def build_bigrams(result):
+    return_list = []
+    
+    
+    for sentence in result:
+        tuple_list =bigram_helper(sentence) # a tuple_list is like: [('hello','world),('hello','world),('hello','world)]
+        for tuple in tuple_list:
+            return_list.append(tuple[0] + "_" + tuple[1])  # ('hello','world) becomes ['hello_world']
+
+    joined_sentence = ' '.join(return_list)
+    return joined_sentence.lower()
+
+def bigram_helper(input_list):
+    bigram_list = []
+    for i in range(len(input_list)-1):
+        bigram_list.append((input_list[i], input_list[i+1]))
+    return bigram_list
+
+
 def string_manupulation(plain_text):
     result = []
     temp_list = []
@@ -160,6 +179,10 @@ def string_manupulation(plain_text):
         #print each line of string
         for string in n_gram_temp_list:
             print(string)
+                
+    print("bigrams")
+    biigrams =build_bigrams(n_gram_result)
+    print (biigrams)
 
 
 # You may need to write regular expressions.
