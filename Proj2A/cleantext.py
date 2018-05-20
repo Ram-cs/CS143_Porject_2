@@ -115,7 +115,7 @@ def string_manupulation(plain_text):
         newLine_withSpace = re.sub(r"http\S+", "", newLine_withSpace)  # replace URL with Empty string
         newLine_withSpace = re.sub(' +', ' ', newLine_withSpace)  # removing mutiple contigous splace in the string
         newLine_withSpace = re.sub('[^a-zA-Z0-9.,!?;:\s]+', '', newLine_withSpace)  # removing mutiple contigous splace in the string
-        newLine_withSpace = re.findall(r"[\w'-]+|[.]",newLine_withSpace)  # Separate all external punctuation such as periods, commas, etc. [.,!?;:]
+        newLine_withSpace = re.findall(r"[\w'-]+|[.]|[.,!?;:]",newLine_withSpace)  # Separate all external punctuation such as periods, commas, etc. [.,!?;:]
         
         result.append(newLine_withSpace)
     
