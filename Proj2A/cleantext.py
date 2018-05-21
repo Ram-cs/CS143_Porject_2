@@ -3,11 +3,15 @@
 """Clean comment text for easier parsing."""
 
 from __future__ import print_function
+# from pyspark import SparkContext
+# from pyspark.sql import SQLContext
 
+import bz2
 import re
 import string
 import argparse
-
+import sys
+import json
 
 __author__ = ""
 __email__ = ""
@@ -105,7 +109,7 @@ _CONTRACTIONS = {
 
 import re
 
-def string_manupulation:
+def string_manupulation():
     data = open("comments.txt", "r").read()
 
     result = []
@@ -146,6 +150,7 @@ def sanitize(text):
     return [parsed_text, unigrams, bigrams, trigrams]
 
 
+
 if __name__ == "__main__":
     # This is the Python main function.
     # You should be able to run
@@ -153,5 +158,20 @@ if __name__ == "__main__":
     # and this "main" function will open the file,
     # read it line by line, extract the proper value from the JSON,
     # pass to "sanitize" and print the result as a list.
+    with open(sys.argv[1]) as f:
+        for line in f:
+            data = json.loads(line)
+            # process comment here
+            sanitize(data['body'])
+            # print(data['body'])
+            
+    
 
+    # filename = sys.argv[1]
+    # f = open(filename, "rb")
+    # line = f.read(900*1024)
+    # z = bz2.BZ2Decompressor()
+    # print(z.decompress(line,900*1024))
+    # f.close()
+    
     # YOUR CODE GOES BELOW.
