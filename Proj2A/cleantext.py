@@ -10,8 +10,11 @@ import bz2
 import re
 import string
 import argparse
+<<<<<<< HEAD
 import sys
 import json
+=======
+>>>>>>> 5f07831bd50d7ddfe8354f27510c88ed836e8e5d
 
 __author__ = ""
 __email__ = ""
@@ -107,51 +110,136 @@ _CONTRACTIONS = {
     "youve": "you've"
 }
 
-import re
 
+<<<<<<< HEAD
 def string_manupulation():
     data = open("comments.txt", "r").read()
+=======
+data = open("comments.txt", "r").read()
 
+def build_bigrams(result):
+    return_list = []
+    for sentence in result:   # a sentense is like ['hello','world']
+        tuple_list =bigram_helper(sentence) # a tuple_list is like: [('hello','world'),('hello','world'),('hello','world)]
+        for tuple in tuple_list:
+            return_list.append(tuple[0] + "_" + tuple[1])  # ('hello','world) becomes ['hello_world']
+
+    joined_sentence = ' '.join(return_list)
+    return joined_sentence.lower()
+
+# reference : http://locallyoptimal.com/blog/2013/01/20/elegant-n-gram-generation-in-python/
+def bigram_helper(input_list):
+    bigram_list = []
+    for i in range(len(input_list)-1):
+        bigram_list.append((input_list[i], input_list[i+1]))
+    return bigram_list
+
+>>>>>>> 5f07831bd50d7ddfe8354f27510c88ed836e8e5d
+
+def build_trigrams(result):
+    return_list = []
+    for sentence in result:
+        tuple_list =trigram_helper(sentence)
+        for tuple in tuple_list:
+            return_list.append(tuple[0] + "_" + tuple[1] +  "_" + tuple[2])
+
+    joined_sentence = ' '.join(return_list)
+    return joined_sentence.lower()
+
+def trigram_helper(input_list):
+    trigram_list = []
+    for i in range(len(input_list)-2):
+        trigram_list.append((input_list[i], input_list[i+1],input_list[i+2]))
+    return trigram_list
+
+
+def string_manupulation(plain_text):
     result = []
-    split_lines_list = data.splitlines()
+    temp_list = []
+    
+    n_gram_result = []
+    n_gram_temp_list=[]
+    
+    split_lines_list = plain_text.splitlines()
     for comment in split_lines_list:
-        newLine_withSpace = comment.replace('\\n', '') #replace newline with empty
-        newLine_withSpace = re.sub(r"http\S+", "", newLine_withSpace) #replace URL with Empty string
-        newLine_withSpace = re.sub(' +',' ',newLine_withSpace) #removing mutiple contigous splace in the string
-        newLine_withSpace = re.findall(r"[\w'-]+|[.]", newLine_withSpace) #Separate all external punctuation such as periods, commas, etc. [.,!?;:]
+        newLine_withSpace = comment.replace('\\n', '')  # replace newline with empty
+        newLine_withSpace = re.sub(r"http\S+", "", newLine_withSpace)  # replace URL with Empty string
+        newLine_withSpace = re.sub(' +', ' ', newLine_withSpace)  # removing mutiple contigous splace in the string
+        newLine_withSpace = re.sub('[^a-zA-Z0-9.,!?;:\s]+', '', newLine_withSpace)  # removing mutiple contigous splace in the string
+        
+        n_gram_newLine_withSpace = re.findall(r"[\w'-]+|[.]",newLine_withSpace)
+        n_gram_result.append(n_gram_newLine_withSpace)
+        
+        
+        newLine_withSpace = re.findall(r"[\w'-]+|[.]|[.,!?;:]",newLine_withSpace)  # Separate all external punctuation such as periods, commas, etc. [.,!?;:]
         
         result.append(newLine_withSpace)
+    
+    
+    # replace appropriate word for parse comment
+    for value in result:
+        for index, word in enumerate(value):
+            if word.lower() in _CONTRACTIONS:
+                value[index]=_CONTRACTIONS[word.lower()]
+    # replace appropriate word for Unigrams
+    for value in n_gram_result:
+        for index, word in enumerate(value):
+            if word.lower() in _CONTRACTIONS:
+                value[index]=_CONTRACTIONS[word.lower()]
 
-    print(result)
-    # Join the list
-    temp_list = []
+    print("parse comment:")
+#join the words for parse comment
     for i in result:
         combine = ' '.join(i)
-        combine = combine.lower() #lowercase
+        combine = combine.lower()  # lowercase
         temp_list.append(combine)
+        
+        #print each line of string
+    for string in temp_list:
+        print(string)
+
+    print("unigram")
+#join the words for Unigrams
+    for i in n_gram_result:
+        combine = ' '.join(i)
+        combine = combine.lower()  # lowercase
+        n_gram_temp_list.append(combine)
+        
+        #print each line of string
+    for string in n_gram_temp_list:
+        print(string)
+                
+    print("bigrams")
+    bigrams =build_bigrams(n_gram_result)
+    print (bigrams)
+
+    print("trigrams")
+    trigrams =build_trigrams(n_gram_result)
+    print (trigrams)
 
 
-    for val in temp_list:
-        print(val)
+
+
 
 # You may need to write regular expressions.
 
-def sanitize(text):
-    """Do parse the text in variable "text" according to the spec, and return
-    a LIST containing FOUR strings 
-    1. The parsed text.
-    2. The unigrams
-    3. The bigrams
-    4. The trigrams
-    """
-
-    # YOUR CODE GOES BELOW:
-
-    return [parsed_text, unigrams, bigrams, trigrams]
+# def sanitize(text):
+#     """Do parse the text in variable "text" according to the spec, and return
+#     a LIST containing FOUR strings
+#     1. The parsed text.
+#     2. The unigrams
+#     3. The bigrams
+#     4. The trigrams
+#     """
+#
+#     # YOUR CODE GOES BELOW:
+#
+#     return [parsed_text, unigrams, bigrams, trigrams]
 
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     # This is the Python main function.
     # You should be able to run
     # python cleantext.py <filename>
@@ -175,3 +263,14 @@ if __name__ == "__main__":
     # f.close()
     
     # YOUR CODE GOES BELOW.
+=======
+    string_manupulation(data)
+# This is the Python main function.
+# You should be able to run
+# python cleantext.py <filename>
+# and this "main" function will open the file,
+# read it line by line, extract the proper value from the JSON,
+# pass to "sanitize" and print the result as a list.
+
+# YOUR CODE GOES BELOW.
+>>>>>>> 5f07831bd50d7ddfe8354f27510c88ed836e8e5d
