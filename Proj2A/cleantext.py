@@ -3,18 +3,13 @@
 """Clean comment text for easier parsing."""
 
 from __future__ import print_function
-# from pyspark import SparkContext
-# from pyspark.sql import SQLContext
 
 import bz2
 import re
 import string
 import argparse
-<<<<<<< HEAD
 import sys
 import json
-=======
->>>>>>> 5f07831bd50d7ddfe8354f27510c88ed836e8e5d
 
 __author__ = ""
 __email__ = ""
@@ -111,10 +106,6 @@ _CONTRACTIONS = {
 }
 
 
-<<<<<<< HEAD
-def string_manupulation():
-    data = open("comments.txt", "r").read()
-=======
 data = open("comments.txt", "r").read()
 
 def build_bigrams(result):
@@ -134,7 +125,6 @@ def bigram_helper(input_list):
         bigram_list.append((input_list[i], input_list[i+1]))
     return bigram_list
 
->>>>>>> 5f07831bd50d7ddfe8354f27510c88ed836e8e5d
 
 def build_trigrams(result):
     return_list = []
@@ -223,23 +213,22 @@ def string_manupulation(plain_text):
 
 # You may need to write regular expressions.
 
-# def sanitize(text):
-#     """Do parse the text in variable "text" according to the spec, and return
-#     a LIST containing FOUR strings
-#     1. The parsed text.
-#     2. The unigrams
-#     3. The bigrams
-#     4. The trigrams
-#     """
-#
-#     # YOUR CODE GOES BELOW:
-#
-#     return [parsed_text, unigrams, bigrams, trigrams]
+def sanitize(text):
+    """Do parse the text in variable "text" according to the spec, and return
+    a LIST containing FOUR strings
+    1. The parsed text.
+    2. The unigrams
+    3. The bigrams
+    4. The trigrams
+    """
+
+    # YOUR CODE GOES BELOW:
+    string_manupulation(text)
+    return [parsed_text, unigrams, bigrams, trigrams]
 
 
 
 if __name__ == "__main__":
-<<<<<<< HEAD
     # This is the Python main function.
     # You should be able to run
     # python cleantext.py <filename>
@@ -254,23 +243,4 @@ if __name__ == "__main__":
             # print(data['body'])
             
     
-
-    # filename = sys.argv[1]
-    # f = open(filename, "rb")
-    # line = f.read(900*1024)
-    # z = bz2.BZ2Decompressor()
-    # print(z.decompress(line,900*1024))
-    # f.close()
-    
     # YOUR CODE GOES BELOW.
-=======
-    string_manupulation(data)
-# This is the Python main function.
-# You should be able to run
-# python cleantext.py <filename>
-# and this "main" function will open the file,
-# read it line by line, extract the proper value from the JSON,
-# pass to "sanitize" and print the result as a list.
-
-# YOUR CODE GOES BELOW.
->>>>>>> 5f07831bd50d7ddfe8354f27510c88ed836e8e5d
