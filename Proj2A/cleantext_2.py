@@ -178,7 +178,8 @@ def build_n_gram_list(result):
 
             if (bool(re.search('[\.\,\!\?\;\:]', single_element))):
                 # is any sentense-ending or phrase-ending punction is found. Save this chunk as individual element in list_string
-                if (re.match('\A[\w]+[\W]+[\w]*\Z', single_element) is None):
+                if (re.match('^[a-z].*?[a-z]$', single_element.lower()) is None):
+                   
                     if (len(temp_list) > 0):
                         # temp_string =temp_string.rstrip()
                         list_string.append(temp_list)
@@ -211,22 +212,21 @@ def string_manupulation(plain_text):
         newLine_withSpace = re.sub(r"http\S+", "", newLine_withSpace)  # replace URL with Empty string
         newLine_withSpace = re.sub(' +', ' ', newLine_withSpace)  # removing mutiple contigous splace in the string
         # newLine_withSpace = re.sub('[^a-zA-Z0-9-.,!?;:\s]+', '', newLine_withSpace)
-
+        
         n_gram_newLine_withSpace = re.sub('[^a-zA-Z0-9\s\']+[\s\n]+', ' ', newLine_withSpace)  # remove all punctuation for n_gram
         
         
         n_gram_newLine_withSpace = re.sub('[\s\n]+[^a-zA-Z0-9\s\']+', ' ', newLine_withSpace)  # remove all punctuation for n_gram
-
-        n_gram_newLine_withSpace = re.findall(r"[\w]+[^\w\s\n]+[\w]+|[\w']+", n_gram_newLine_withSpace)
-
+        
+        n_gram_newLine_withSpace = re.findall(r"[\w]+[^\s\n]+[\w]+|[\w']+", n_gram_newLine_withSpace)
+        
         n_gram_result.append(n_gram_newLine_withSpace)
-
-        newLine_withSpace = re.findall(r"[\w]+[^\w\s\n]+[\w]+|[\w']+|[.,!?;:]",newLine_withSpace)  # Separate all external punctuation such as periods, commas, etc. [.,!?;:]
-
+        
+        newLine_withSpace = re.findall(r"[\w]+[^\s\n]+[\w]+|[\w']+|[.,!?;:]",newLine_withSpace)  # Separate all external punctuation such as periods, commas, etc. [.,!?;:]
+        
         result.append(newLine_withSpace)
+    
 
-    print(result)
-    print(n_gram_result)
     print("#########parse comment:##########")
     # join the words for parse comment
     parse = build_parse(result) ####### list containing parse text
@@ -292,10 +292,10 @@ if __name__ == "__main__":
 # pass to "sanitize" and print the result as a list.
 
 # YOUR CODE GOES BELOW.
-if len(sys.argv) > 1:
-    with open(sys.argv[1]) as f:
-        for line in f:
-            data = json.loads(line)
+    if len(sys.argv) > 1:
+        with open(sys.argv[1]) as f:
+            for line in f:
+                data = json.loads(line)
             #sanitize here
-            sanitize(data['body'])
-            print(data['body'])
+                sanitize(data['body'])
+                print(data['body'])
