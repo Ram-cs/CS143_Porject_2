@@ -288,9 +288,10 @@ if __name__ == "__main__":
 # pass to "sanitize" and print the result as a list.
 
 # YOUR CODE GOES BELOW.
-with open(sys.argv[1]) as f:
-    for line in f:
-        data = json.loads(line)
-        #sanitize here
-        sanitize(data['body'])
-        print(data['body'])
+if len(sys.argv) > 1:
+    with open(sys.argv[1]) as f:
+        for line in f:
+            data = json.loads(line)
+            #sanitize here
+            sanitize(data['body'])
+            print(data['body'])
