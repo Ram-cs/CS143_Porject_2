@@ -7,6 +7,8 @@ from __future__ import print_function
 import re
 import string
 import argparse
+import sys
+import json
 
 __author__ = ""
 __email__ = ""
@@ -259,18 +261,21 @@ def string_manupulation(plain_text):
 
 # You may need to write regular expressions.
 
-# def sanitize(text):
-#     """Do parse the text in variable "text" according to the spec, and return
-#     a LIST containing FOUR strings
-#     1. The parsed text.
-#     2. The unigrams
-#     3. The bigrams
-#     4. The trigrams
-#     """
-#
-#     # YOUR CODE GOES BELOW:
-#
-#     return [parsed_text, unigrams, bigrams, trigrams]
+def sanitize(text):
+    """Do parse the text in variable "text" according to the spec, and return
+    a LIST containing FOUR strings
+    1. The parsed text.
+    2. The unigrams
+    3. The bigrams
+    4. The trigrams
+    """
+
+    # YOUR CODE GOES BELOW:
+    parsed_text=""
+    unigrams=""
+    bigrams=""
+    trigrams=""
+    return [parsed_text, unigrams, bigrams, trigrams]
 
 
 if __name__ == "__main__":
@@ -283,3 +288,9 @@ if __name__ == "__main__":
 # pass to "sanitize" and print the result as a list.
 
 # YOUR CODE GOES BELOW.
+with open(sys.argv[1]) as f:
+    for line in f:
+        data = json.loads(line)
+        #sanitize here
+        sanitize(data['body'])
+        print(data['body'])
