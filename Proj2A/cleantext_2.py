@@ -8,7 +8,7 @@ import re
 import string
 import argparse
 import sys
-import json
+import json 
 
 __author__ = ""
 __email__ = ""
@@ -176,10 +176,9 @@ def build_n_gram_list(result):
     for element_list in result:
         for single_element in element_list:
 
-            if (bool(re.search('[\W^\'^\n^\s^\-]',
-                               single_element))):  # is anything other than: alphabet, number, ., and - is matched. Save this chunk as individual element in list_string
-                if ((re.match('\A[\w]+[\'][\w]*\Z', single_element) is None) and (
-                        re.match('\A[\w]+[\-][\w]*\Z', single_element) is None)):
+            if (bool(re.search('[\.\,\!\?\;\:]', single_element))):
+                # is any sentense-ending or phrase-ending punction is found. Save this chunk as individual element in list_string
+                if (re.match('\A[\w]+[\W]+[\w]*\Z', single_element) is None):
                     if (len(temp_list) > 0):
                         # temp_string =temp_string.rstrip()
                         list_string.append(temp_list)
@@ -213,17 +212,21 @@ def string_manupulation(plain_text):
         newLine_withSpace = re.sub(' +', ' ', newLine_withSpace)  # removing mutiple contigous splace in the string
         # newLine_withSpace = re.sub('[^a-zA-Z0-9-.,!?;:\s]+', '', newLine_withSpace)
 
-        n_gram_newLine_withSpace = re.sub('[^a-zA-Z0-9-\s\']+', '', newLine_withSpace)  # remove all punctuation for n_gram
+        n_gram_newLine_withSpace = re.sub('[^a-zA-Z0-9\s\']+[\s\n]+', ' ', newLine_withSpace)  # remove all punctuation for n_gram
+        
+        
+        n_gram_newLine_withSpace = re.sub('[\s\n]+[^a-zA-Z0-9\s\']+', ' ', newLine_withSpace)  # remove all punctuation for n_gram
 
-        n_gram_newLine_withSpace = re.findall(r"[\w'-]+|[.]", n_gram_newLine_withSpace)
+        n_gram_newLine_withSpace = re.findall(r"[\w]+[^\w\s\n]+[\w]+|[\w']+", n_gram_newLine_withSpace)
 
         n_gram_result.append(n_gram_newLine_withSpace)
 
-        newLine_withSpace = re.findall(r"[\w'-]+|[.]|[.,!?;:]",newLine_withSpace)  # Separate all external punctuation such as periods, commas, etc. [.,!?;:]
+        newLine_withSpace = re.findall(r"[\w]+[^\w\s\n]+[\w]+|[\w']+|[.,!?;:]",newLine_withSpace)  # Separate all external punctuation such as periods, commas, etc. [.,!?;:]
 
         result.append(newLine_withSpace)
 
-
+    print(result)
+    print(n_gram_result)
     print("#########parse comment:##########")
     # join the words for parse comment
     parse = build_parse(result) ####### list containing parse text
@@ -263,18 +266,19 @@ def string_manupulation(plain_text):
 
 def sanitize(text):
     """Do parse the text in variable "text" according to the spec, and return
-    a LIST containing FOUR strings
-    1. The parsed text.
-    2. The unigrams
-    3. The bigrams
-    4. The trigrams
-    """
-
+        a LIST containing FOUR strings
+        1. The parsed text.
+        2. The unigrams
+        3. The bigrams
+        4. The trigrams
+        """
+    
     # YOUR CODE GOES BELOW:
     parsed_text=""
     unigrams=""
     bigrams=""
     trigrams=""
+    string_manupulation(text)
     return [parsed_text, unigrams, bigrams, trigrams]
 
 
