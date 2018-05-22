@@ -114,14 +114,14 @@ def bigram_helper(input_list):
 
 def build_bigrams(result):
     return_list = []
-    for sentence in result:  # a sentense is like ['hello','world']
-        tuple_list = bigram_helper(
-                                   sentence)  # a tuple_list is like: [('hello','world'),('hello','world'),('hello','world)]
-                                   for tuple in tuple_list:
-                                       return_list.append(tuple[0] + "_" + tuple[1])  # ('hello','world) becomes ['hello_world']
 
-joined_sentence = ' '.join(return_list)
-return joined_sentence.lower()
+    for sentence in result:  # a sentense is like ['hello','world']
+        tuple_list = bigram_helper(sentence)  # a tuple_list is like: [('hello','world'),('hello','world'),('hello','world)]
+        for tuple in tuple_list:
+            return_list.append(tuple[0] + "_" + tuple[1])  # ('hello','world) becomes ['hello_world']
+
+    joined_sentence = ' '.join(return_list)
+    return joined_sentence.lower()
 
 def trigram_helper(input_list):
     trigram_list = []
@@ -137,115 +137,124 @@ def build_trigrams(result):
         for tuple in tuple_list:
             return_list.append(tuple[0] + "_" + tuple[1] + "_" + tuple[2])
 
-joined_sentence = ' '.join(return_list)
-return joined_sentence.lower()
+    joined_sentence = ' '.join(return_list)
+    return joined_sentence.lower()
 
+def build_parse(list):
+    result = list
+    ######### replace appropriate word for parse comment
+    for value in result:
+        for index, word in enumerate(value):
+            value[index] = value[index].replace("'", "")  # removing all '
+
+    for value in result:
+        for index, word in enumerate(value):
+            if word.lower() in _CONTRACTIONS:
+                value[index] = _CONTRACTIONS[word.lower()]  # mapping to contractions for hes to he's like
+    return result
+
+
+def build_unigram(list):
+    ####### replace appropriate word for Unigrams
+    n_gram_result = list
+    for value in n_gram_result:
+        for index, word in enumerate(value):
+            value[index] = value[index].replace("'", "")  # removing all '
+
+    for value in n_gram_result:
+        for index, word in enumerate(value):
+            if word.lower() in _CONTRACTIONS:
+                value[index] = _CONTRACTIONS[word.lower()]  # mapping to contractions for hes to he's like
+    return  n_gram_result
 
 def build_n_gram_list(result):
     temp_list = []
     list_string = []
-    
+
     for element_list in result:
         for single_element in element_list:
-            
+
             if (bool(re.search('[\W^\'^\n^\s^\-]',
                                single_element))):  # is anything other than: alphabet, number, ., and - is matched. Save this chunk as individual element in list_string
                 if ((re.match('\A[\w]+[\'][\w]*\Z', single_element) is None) and (
-                                                                                  re.match('\A[\w]+[\-][\w]*\Z', single_element) is None)):
+                        re.match('\A[\w]+[\-][\w]*\Z', single_element) is None)):
                     if (len(temp_list) > 0):
                         # temp_string =temp_string.rstrip()
                         list_string.append(temp_list)
                         temp_list = []
-                                                                                  else:  # else if it's words like "i'm"  "can't" "abc-abc"
-                                                                                  # single_element+=single_element+" "
-                temp_list.append(single_element)
-    
-        else:
-            temp_list.append(single_element)
+                else:  # else if it's words like "i'm"  "can't" "abc-abc"
+                    # single_element+=single_element+" "
+                    temp_list.append(single_element)
 
-if (len(temp_list) > 0):
-    #  temp_string =temp_string.rstrip()
-    list_string.append(temp_list)
-    
+            else:
+                temp_list.append(single_element)
+
+    if (len(temp_list) > 0):
+        #  temp_string =temp_string.rstrip()
+        list_string.append(temp_list)
+
     return list_string
 
 
 def string_manupulation(plain_text):
     result = []
     temp_list = []
-    
+
     n_gram_result = []
     n_gram_temp_list = []
-    
+
     split_lines_list = plain_text.splitlines()
-    
+
     for comment in split_lines_list:
         newLine_withSpace = comment.replace('\\n', '')  # replace newline with empty
         newLine_withSpace = re.sub(r"http\S+", "", newLine_withSpace)  # replace URL with Empty string
         newLine_withSpace = re.sub(' +', ' ', newLine_withSpace)  # removing mutiple contigous splace in the string
         # newLine_withSpace = re.sub('[^a-zA-Z0-9-.,!?;:\s]+', '', newLine_withSpace)
-        
+
         n_gram_newLine_withSpace = re.sub('[^a-zA-Z0-9-\s\']+', '', newLine_withSpace)  # remove all punctuation for n_gram
-        
+
         n_gram_newLine_withSpace = re.findall(r"[\w'-]+|[.]", n_gram_newLine_withSpace)
-        
+
         n_gram_result.append(n_gram_newLine_withSpace)
-        
-        newLine_withSpace = re.findall(r"[\w'-]+|[.]|[.,!?;:]",
-                                       newLine_withSpace)  # Separate all external punctuation such as periods, commas, etc. [.,!?;:]
-                                       
+
+        newLine_withSpace = re.findall(r"[\w'-]+|[.]|[.,!?;:]",newLine_withSpace)  # Separate all external punctuation such as periods, commas, etc. [.,!?;:]
+
         result.append(newLine_withSpace)
-    
-    
-    ################### DONT NEED THIS
-    # # replace appropriate word for parse comment
-    # for value in result:
-    #     for index, word in enumerate(value):
-    #         if word.lower() in _CONTRACTIONS:
-    #             value[index] = _CONTRACTIONS[word.lower()]
-    ###################
-    
-    
-    ############################### DONT NEED THIS
-    # # replace appropriate word for Unigrams
-    # for value in n_gram_result:
-    #     for index, word in enumerate(value):
-    #         if word.lower() in _CONTRACTIONS:
-    #             value[index] = _CONTRACTIONS[word.lower()]
-    ##############################
-    
+
+
+    print("#########parse comment:##########")
     # join the words for parse comment
-    for i in result:
+    parse = build_parse(result) ####### list containing parse text
+    for i in parse:
         combine = ' '.join(i)
         combine = combine.lower()  # lowercase
         temp_list.append(combine)
-    
-    n_gram_words = build_n_gram_list(result)
 
-# print each line of string
-print("#########parse comment:##########")
+    # print each line of string
     for string in temp_list:
         print(string)
 
-print("#############unigram###########")
-# join the words for Unigrams
-for i in n_gram_result:
-    combine = ' '.join(i)
-    combine = combine.lower()  # lowercase
-    n_gram_temp_list.append(combine)
-    
+    print("#############unigram###########")
+    n_gram_result = build_unigram(n_gram_result) ####### list containing unigram
+    # # join the words for Unigrams
+    for i in n_gram_result:
+        combine = ' '.join(i)
+        combine = combine.lower()  # lowercase
+        n_gram_temp_list.append(combine)
+
     # print each line of string
     for string in n_gram_temp_list:
         print(string)
 
+    n_gram_words = build_n_gram_list(result)
     print("############bigrams###########")
-    bigrams = build_bigrams(n_gram_words)
+    bigrams = build_bigrams(n_gram_words) ######### list contaiing bigram
     # print(n_gram_result)
     print(bigrams)
 
-print("############trigrams##############")
-trigrams = build_trigrams(n_gram_words)
-print(trigrams)
+    print("############trigrams##############")
+    trigrams = build_trigrams(n_gram_words) ######## list containing trigram
+    print(trigrams)
 
 
 # You may need to write regular expressions.
