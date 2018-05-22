@@ -185,7 +185,8 @@ def string_manupulation(plain_text):
         newLine_withSpace = re.sub(' +', ' ', newLine_withSpace)  # removing mutiple contigous splace in the string
         # newLine_withSpace = re.sub('[^a-zA-Z0-9-.,!?;:\s]+', '', newLine_withSpace)
         
-        n_gram_newLine_withSpace = re.sub('[^a-zA-Z0-9-\s]+', '', newLine_withSpace)  # remove all punctuation for n_gram
+        n_gram_newLine_withSpace = re.sub('[^a-zA-Z0-9-\s\']+', '', newLine_withSpace)  # remove all punctuation for n_gram
+        
         n_gram_newLine_withSpace = re.findall(r"[\w'-]+|[.]", n_gram_newLine_withSpace)
         
         n_gram_result.append(n_gram_newLine_withSpace)
@@ -205,31 +206,33 @@ def string_manupulation(plain_text):
     ###################
     
     
-    # replace appropriate word for Unigrams
-    for value in n_gram_result:
-        for index, word in enumerate(value):
-            if word.lower() in _CONTRACTIONS:
-                value[index] = _CONTRACTIONS[word.lower()]
-
-# join the words for parse comment
-for i in result:
-    combine = ' '.join(i)
-    combine = combine.lower()  # lowercase
-    temp_list.append(combine)
+    ############################### DONT NEED THIS
+    # # replace appropriate word for Unigrams
+    # for value in n_gram_result:
+    #     for index, word in enumerate(value):
+    #         if word.lower() in _CONTRACTIONS:
+    #             value[index] = _CONTRACTIONS[word.lower()]
+    ##############################
     
-    n_gram_words = build_n_gram_list(result)
-    
-    # print each line of string
-    print("#########parse comment:##########")
-    for string in temp_list:
-        print(string)
-    
-    print("#############unigram###########")
-    # join the words for Unigrams
-    for i in n_gram_result:
+    # join the words for parse comment
+    for i in result:
         combine = ' '.join(i)
         combine = combine.lower()  # lowercase
-        n_gram_temp_list.append(combine)
+        temp_list.append(combine)
+    
+    n_gram_words = build_n_gram_list(result)
+
+# print each line of string
+print("#########parse comment:##########")
+    for string in temp_list:
+        print(string)
+
+print("#############unigram###########")
+# join the words for Unigrams
+for i in n_gram_result:
+    combine = ' '.join(i)
+    combine = combine.lower()  # lowercase
+    n_gram_temp_list.append(combine)
     
     # print each line of string
     for string in n_gram_temp_list:
