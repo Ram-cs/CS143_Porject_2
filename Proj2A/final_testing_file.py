@@ -235,7 +235,7 @@ def string_manupulation(plain_text):
 
     # print("#########parse comment:##########")
     # join the words for parse comment
-    print(result)
+    #print(result)
     parse = build_parse(result)  ####### list containing parse text
     for index, i in enumerate(parse):
         combine = ' '.join(i)
