@@ -316,7 +316,7 @@ if __name__ == "__main__":
     # and this "main" function will open the file,
     # read it line by line, extract the proper value from the JSON,
     # pass to "sanitize" and print the result as a list.
-    print(string_manupulation(data))
+    #print(string_manupulation(data))
     # YOUR CODE GOES BELOW.
     if len(sys.argv) > 1:
         with open(sys.argv[1]) as f:
