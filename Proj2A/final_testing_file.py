@@ -239,7 +239,7 @@ def string_manupulation(plain_text):
     parse = build_parse(result)  ####### list containing parse text
     for index, i in enumerate(parse):
         combine = ' '.join(i)
-        if (index != len(parse)-1):
+        if (index != len(parse)-1 and len(combine)>1 and combine !=" "):
             combine = combine.lower() + " "  # lowercase
         else:
             combine = combine.lower()
@@ -257,7 +257,7 @@ def string_manupulation(plain_text):
     # # join the words for Unigrams
     for index,i in enumerate(n_gram_result):
         combine = ' '.join(i)
-        if (index != len(n_gram_result)-1):
+        if (index != len(n_gram_result)-1 and len(combine)>1 and combine !=" "):
             combine = combine.lower() + " "  # lowercase
         else:
             combine = combine.lower()
@@ -316,7 +316,8 @@ if __name__ == "__main__":
     # and this "main" function will open the file,
     # read it line by line, extract the proper value from the JSON,
     # pass to "sanitize" and print the result as a list.
-    #print(string_manupulation(data))
+   
+   #print(string_manupulation(data))
     # YOUR CODE GOES BELOW.
     if len(sys.argv) > 1:
         with open(sys.argv[1]) as f:
