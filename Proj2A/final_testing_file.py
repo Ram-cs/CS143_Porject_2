@@ -235,10 +235,15 @@ def string_manupulation(plain_text):
 
     # print("#########parse comment:##########")
     # join the words for parse comment
+    print(result)
     parse = build_parse(result)  ####### list containing parse text
-    for i in parse:
+    for index, i in enumerate(parse):
         combine = ' '.join(i)
-        combine = combine.lower()  # lowercase
+        if (index != len(parse)-1):
+            combine = combine.lower() + " "  # lowercase
+        else:
+            combine = combine.lower()
+        
         temp_list.append(combine)
 
     # # print each line of string
@@ -250,9 +255,12 @@ def string_manupulation(plain_text):
     # print("#############unigram###########")
     n_gram_result = build_unigram(n_gram_result)  ####### list containing unigram
     # # join the words for Unigrams
-    for i in n_gram_result:
+    for index,i in enumerate(n_gram_result):
         combine = ' '.join(i)
-        combine = combine.lower()  # lowercase
+        if (index != len(n_gram_result)-1):
+            combine = combine.lower() + " "  # lowercase
+        else:
+            combine = combine.lower()
         n_gram_temp_list.append(combine)
 
 
@@ -308,7 +316,7 @@ if __name__ == "__main__":
     # and this "main" function will open the file,
     # read it line by line, extract the proper value from the JSON,
     # pass to "sanitize" and print the result as a list.
-
+    print(string_manupulation(data))
     # YOUR CODE GOES BELOW.
     if len(sys.argv) > 1:
         with open(sys.argv[1]) as f:
