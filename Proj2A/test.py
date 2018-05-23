@@ -236,10 +236,12 @@ def string_manupulation(plain_text):
     # print("#########parse comment:##########")
     # join the words for parse comment
     parse = build_parse(result)  ####### list containing parse text
+    parse_comment = ""
     for i in parse:
         combine = ' '.join(i)
         combine = combine.lower()  # lowercase
         temp_list.append(combine)
+        parse_comment+=combine
 
     # # print each line of string
     # for string in temp_list:
@@ -250,10 +252,12 @@ def string_manupulation(plain_text):
     # print("#############unigram###########")
     n_gram_result = build_unigram(n_gram_result)  ####### list containing unigram
     # # join the words for Unigrams
+    unigrams=""
     for i in n_gram_result:
         combine = ' '.join(i)
         combine = combine.lower()  # lowercase
         n_gram_temp_list.append(combine)
+        unigrams += combine
 
 
     # # print each line of string
@@ -273,12 +277,12 @@ def string_manupulation(plain_text):
     bigrams_list = []
     trigram_list = []
 
-    bigrams_list.append(bigrams)
-    trigram_list.append(trigrams)
-    final_result.append(temp_list)
-    final_result.append(n_gram_temp_list)
-    final_result.append(bigrams_list)
-    final_result.append(trigram_list)
+
+
+    final_result.append(parse_comment)
+    final_result.append(unigrams)
+    final_result.append(bigrams)
+    final_result.append(trigrams)
 
     return final_result
 
@@ -312,13 +316,13 @@ if __name__ == "__main__":
     # and this "main" function will open the file,
     # read it line by line, extract the proper value from the JSON,
     # pass to "sanitize" and print the result as a list.
-
+    
     # YOUR CODE GOES BELOW.
     if len(sys.argv) > 1:
         with open(sys.argv[1]) as f:
             for line in f:
                 data = json.loads(line)
                 # sanitize here
-                sanitize(data['body'])
-                print(data['body'])
+                a=sanitize(data['body'])
+                print(a)
 
