@@ -9,16 +9,18 @@ import pyspark as spark
 import itertools
 from itertools import chain
 from pyspark.sql.types import *
-
+import sys
 from pyspark.sql import Row
 
 
 #Loading a BZ2 file containing JSON objects into Spark:
-# sc = SparkContext.getOrCreate()
-# sqlContext = SQLContext(sc)
-# sc.addPyFile("cleantext.py")
-# comments = sqlContext.read.json("comments-minimal.json.bz2") #gives the attibutes and its type
-# submissions = sqlContext.read.json("submissions.json.bz2") #gives the attibutes and its type
+sc = SparkContext.getOrCreate()
+sqlContext = SQLContext(sc)
+sc.addPyFile("cleantext.py")
+comments = sqlContext.read.json("/home/cs143/data/comments-minimal.json.bz2") #gives the attibutes and its type
+submissions = sqlContext.read.json("/home/cs143/data/submissions.json.bz2") #gives the attibutes and its type
+labeled_data = sqlContext.read.csv("labeled_data.csv", header=True, mode="DROPMALFORMED")
+
 
 #TASK 1
 #run spark frame
@@ -60,11 +62,11 @@ if __name__ == "__main__":
     submission_levelData()
     read_csv_file()
 
-    # conf = SparkConf().setAppName("CS143 Project 2B")
-    # conf = conf.setMaster("local[*]")
-    # sc   = SparkContext(conf=conf)
-    # sqlContext = SQLContext(sc)
-    # sc.addPyFile("cleantext.py")
-    # main(sqlContext)
+    conf = SparkConf().setAppName("CS143 Project 2B")
+    conf = conf.setMaster("local[*]")
+    sc   = SparkContext(conf=conf)
+    sqlContext = SQLContext(sc)
+    sc.addPyFile("cleantext.py")
+    main(sqlContext)
 
 
