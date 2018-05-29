@@ -14,16 +14,21 @@ from pyspark.sql import Row
 
 
 #Loading a BZ2 file containing JSON objects into Spark:
-sc = SparkContext.getOrCreate()
+conf = SparkConf().setAppName("CS143 Project 2B")
+conf = conf.setMaster("local[*]")
+sc   = SparkContext(conf=conf)
 sqlContext = SQLContext(sc)
 sc.addPyFile("cleantext.py")
+# sc = SparkContext.getOrCreate()
+# sqlContext = SQLContext(sc)
+# sc.addPyFile("cleantext.py")
 comments = sqlContext.read.json("/home/cs143/data/comments-minimal.json.bz2") #gives the attibutes and its type
 submissions = sqlContext.read.json("/home/cs143/data/submissions.json.bz2") #gives the attibutes and its type
 labeled_data = sqlContext.read.csv("labeled_data.csv", header=True, mode="DROPMALFORMED")
 
 
 #TASK 1
-#run spark frame
+# run spark frame
 spark = SparkSession \
     .builder \
     .appName("Python Spark SQL basic example") \
@@ -59,7 +64,8 @@ def task2():
     # csv_table = spark.sql("SELECT * FROM df_table")
 
     
-    spark.sql("SELECT data_table.Input_id, data_table.labeldem, data_table.labelgop, data_table.labeldjt, comment_table.body FROM data_table JOIN comment_table ON data_table.Input_id = comment_table.id").show()
+    query = spark.sql("SELECT data_table.Input_id, data_table.labeldem, data_table.labelgop, data_table.labeldjt, comment_table.body FROM data_table JOIN comment_table ON data_table.Input_id = comment_table.id")
+    query.show()
 
 
 
@@ -74,11 +80,11 @@ if __name__ == "__main__":
     # submission_levelData()
     # read_csv_file()
 
-    conf = SparkConf().setAppName("CS143 Project 2B")
-    conf = conf.setMaster("local[*]")
-    sc   = SparkContext(conf=conf)
-    sqlContext = SQLContext(sc)
-    sc.addPyFile("cleantext.py")
+    # conf = SparkConf().setAppName("CS143 Project 2B")
+    # conf = conf.setMaster("local[*]")
+    # sc   = SparkContext(conf=conf)
+    # sqlContext = SQLContext(sc)
+    # sc.addPyFile("cleantext.py")
     main(sqlContext)
 
 

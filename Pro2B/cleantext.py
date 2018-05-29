@@ -104,7 +104,7 @@ _CONTRACTIONS = {
     "youve": "you've"
 }
 
-data = open("comments.txt", "r").read()
+# data = open("comments.txt", "r").read()
 
 
 # reference : http://locallyoptimal.com/blog/2013/01/20/elegant-n-gram-generation-in-python/
