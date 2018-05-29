@@ -13,3 +13,4 @@ QUESTION 2: Take a look at the schema for comments. Forget BCNF and 3NF. Does
 the data frame look normalized? In other words, is the data frame free of 
 redundancies that might affect insert/update integrity? If not, how would we 
 decompose it? Why do you believe the collector of the data stored it in this way?
+
