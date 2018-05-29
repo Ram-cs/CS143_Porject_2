@@ -9,7 +9,7 @@ import pyspark as spark
 import itertools
 from itertools import chain
 from pyspark.sql.types import *
-
+import sys
 from pyspark.sql import Row
 
 
@@ -17,8 +17,9 @@ from pyspark.sql import Row
 # sc = SparkContext.getOrCreate()
 # sqlContext = SQLContext(sc)
 # sc.addPyFile("cleantext.py")
-# comments = sqlContext.read.json("comments-minimal.json.bz2") #gives the attibutes and its type
-# submissions = sqlContext.read.json("submissions.json.bz2") #gives the attibutes and its type
+# comments = sqlContext.read.json("/home/cs143/data/comments-minimal.json.bz2") #gives the attibutes and its type
+# submissions = sqlContext.read.json("/home/cs143/data/submissions.json.bz2") #gives the attibutes and its type
+# labeled_data = sqlContext.read.csv("labeled_data.csv", header=True, mode="DROPMALFORMED")
 
 #TASK 1
 #run spark frame
