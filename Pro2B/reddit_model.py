@@ -32,23 +32,34 @@ spark = SparkSession \
 
 
 
-def comment_laveledData():
-    df_cmnt = spark.read.json("comments.json")
-    df_cmnt.show() #show schema
-    df_cmnt.printSchema() #show attibutes with its type
+# def comment_laveledData():
+#     df_cmnt = spark.read.json("comments.json")
+#     df_cmnt.show() #show schema
+#     df_cmnt.printSchema() #show attibutes with its type
 
-def submission_levelData():
-    df_sb = spark.read.json("submission.json")
-    df_sb.show()#show schema
-    df_sb.printSchema() #show attibutes with its type
+# def submission_levelData():
+#     df_sb = spark.read.json("submission.json")
+#     df_sb.show()#show schema
+#     df_sb.printSchema() #show attibutes with its type
 
-def read_csv_file():
-    df_csv = spark.read.csv('labeled_data.csv')
-    df_csv.printSchema()
-    df_csv.describe().show()#give summary that include count, mean, stddev, min, max
+# def read_csv_file():
+#     df_csv = spark.read.csv('labeled_data.csv')
+#     df_csv.printSchema()
+#     df_csv.describe().show()#give summary that include count, mean, stddev, min, max
 
 #TASK 2
 #functional dependencies implied by the data.
+
+def task2():
+    comments.createOrReplaceTempView("comment_table")
+    #comment_table = spark.sql("SELECT id, body FROM cmnt_table")
+    
+    labeled_data.createOrReplaceTempView("data_table")
+    
+    # csv_table = spark.sql("SELECT * FROM df_table")
+
+    
+    spark.sql("SELECT data_table.Input_id, data_table.labeldem, data_table.labelgop, data_table.labeldjt, comment_table.body FROM data_table JOIN comment_table ON data_table.Input_id = comment_table.id").show()
 
 
 
@@ -56,11 +67,12 @@ def main(context):
     """Main function takes a Spark SQL context."""
     # YOUR CODE HERE
     # YOU MAY ADD OTHER FUNCTIONS AS NEEDED
+    task2()
 
 if __name__ == "__main__":
-    comment_laveledData()
-    submission_levelData()
-    read_csv_file()
+    # comment_laveledData()
+    # submission_levelData()
+    # read_csv_file()
 
     conf = SparkConf().setAppName("CS143 Project 2B")
     conf = conf.setMaster("local[*]")
