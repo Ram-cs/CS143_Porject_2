@@ -12,6 +12,8 @@ from pyspark.sql.types import *
 import sys
 from pyspark.sql import Row
 
+import cleantext
+
 
 #Loading a BZ2 file containing JSON objects into Spark:
 # sc = SparkContext.getOrCreate()
@@ -23,6 +25,7 @@ from pyspark.sql import Row
 
 #TASK 1
 #run spark frame
+
 spark = SparkSession \
     .builder \
     .appName("Python Spark SQL basic example") \
@@ -32,7 +35,7 @@ spark = SparkSession \
 
 
 def comment_laveledData():
-    df_cmnt = spark.read.json("comments.json")
+    df_cmnt = spark.read.json("comments-minimal.json")
     #df_cmnt.show() #show schema
     #df_cmnt.printSchema() #show attibutes with its type
     return df_cmnt
@@ -62,11 +65,18 @@ def task2(df_csv,df_cmnt):
     
     # csv_table = spark.sql("SELECT * FROM df_table")
 
-    
-    spark.sql("SELECT df_table.Input_id, df_table.labeldem, df_table.labelgop, df_table.labeldjt, cmnt_table.body FROM df_table JOIN cmnt_table ON df_table.Input_id = cmnt_table.id").show()
+    spark.sql("DROP TABLE IF EXISTS task2_table")
+    spark.sql("SELECT df_table.Input_id AS Input_id, df_table.labeldem, df_table.labelgop, df_table.labeldjt, cmnt_table.body AS comment_body FROM df_table JOIN cmnt_table ON df_table.Input_id = cmnt_table.id LIMIT 5").write.saveAsTable("task2_table")
 
-#csv_table.show()
-#   comment_table.show()
+
+def connect_all_string(string_list):
+    str = ' '.join(string_list)
+    print(str, file=open("output1.txt", "a"))
+    return str
+
+#maybe task5 too?
+def task4():
+    spark.sql("SELECT Input_id, connect_all_string(sanitize(comment_body)) AS n_grams  FROM task2_table").show()
 
 def main(context):
     """Main function takes a Spark SQL context."""
@@ -74,16 +84,21 @@ def main(context):
     # YOU MAY ADD OTHER FUNCTIONS AS NEEDED
 
 if __name__ == "__main__":
+
+#conf = SparkConf().setAppName("CS143 Project 2B")
+#conf = conf.setMaster("local[*]")
+#sc   = SparkContext(conf=conf)
+#sqlContext = SQLContext(sc)
+#sc.addPyFile("cleantext.py")
+#main(sqlContext)
+    spark.udf.register("sanitize", cleantext.sanitize); #UDF
+    spark.udf.register("connect_all_string", connect_all_string);
     df_cmnt = comment_laveledData()
     submission_levelData()
     df_csv = read_csv_file()
     task2(df_csv,df_cmnt)
+    task4()
 
-    # conf = SparkConf().setAppName("CS143 Project 2B")
-    # conf = conf.setMaster("local[*]")
-    # sc   = SparkContext(conf=conf)
-    # sqlContext = SQLContext(sc)
-    # sc.addPyFile("cleantext.py")
-    # main(sqlContext)
+
 
 

@@ -104,7 +104,7 @@ _CONTRACTIONS = {
     "youve": "you've"
 }
 
-data = open("comments.txt", "r").read()
+#data = open("comments.txt", "r").read()
 
 
 # reference : http://locallyoptimal.com/blog/2013/01/20/elegant-n-gram-generation-in-python/
@@ -235,31 +235,34 @@ def string_manupulation(plain_text):
 
     # print("#########parse comment:##########")
     # join the words for parse comment
-    # print(result)
+    #print(result)
     parse = build_parse(result)  ####### list containing parse text
     for index, i in enumerate(parse):
         combine = ' '.join(i)
-        if (index != len(parse) - 1 and len(combine) > 1 and combine != " "):
+        if (index != len(parse)-1 and len(combine)>1 and combine !=" "):
             combine = combine.lower() + " "  # lowercase
         else:
             combine = combine.lower()
-
+        
         temp_list.append(combine)
 
     # # print each line of string
     # for string in temp_list:
     #     print(string)
 
+
+
     # print("#############unigram###########")
     n_gram_result = build_unigram(n_gram_result)  ####### list containing unigram
     # # join the words for Unigrams
-    for index, i in enumerate(n_gram_result):
+    for index,i in enumerate(n_gram_result):
         combine = ' '.join(i)
-        if (index != len(n_gram_result) - 1 and len(combine) > 1 and combine != " "):
+        if (index != len(n_gram_result)-1 and len(combine)>1 and combine !=" "):
             combine = combine.lower() + " "  # lowercase
         else:
             combine = combine.lower()
         n_gram_temp_list.append(combine)
+
 
     # # print each line of string
     # for string in n_gram_temp_list:
@@ -289,6 +292,7 @@ def string_manupulation(plain_text):
     return final_result
 
 
+
 # You may need to write regular expressions.
 
 def sanitize(text):
@@ -301,7 +305,7 @@ def sanitize(text):
         """
 
     # YOUR CODE GOES BELOW:
-    return string_manupulation(text)  # returning list of 4 string
+    return string_manupulation(text) #returning list of 4 string
 
 
 if __name__ == "__main__":
@@ -312,14 +316,14 @@ if __name__ == "__main__":
     # and this "main" function will open the file,
     # read it line by line, extract the proper value from the JSON,
     # pass to "sanitize" and print the result as a list.
-
+   
+   #print(string_manupulation(data))
     # YOUR CODE GOES BELOW.
-    if len(sys.argv) == 2:
+    if len(sys.argv) > 1:
         with open(sys.argv[1]) as f:
             for line in f:
                 data = json.loads(line)
                 # sanitize here
                 print(sanitize(data['body']))
-    else:
-        print("[argument wrong!]")
+
 
