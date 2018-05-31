@@ -35,19 +35,22 @@ spark = SparkSession \
 
 
 def comment_laveledData():
-    df_cmnt = spark.read.json("comments-minimal.json")
+    df_cmnt = spark.read.parquet("comments")
+    #df_cmnt = spark.read.json("comments-minimal.json")
     #df_cmnt.show() #show schema
     #df_cmnt.printSchema() #show attibutes with its type
     return df_cmnt
 
 def submission_levelData():
-    df_sb = spark.read.json("submission.json")
+    df_sb = spark.read.parquet("submissions")
+    #df_sb = spark.read.json("submission.json")
     #df_sb.show()#show schema
     #df_sb.printSchema() #show attibutes with its type
     return df_sb
 
 def read_csv_file():
-    df_csv = spark.read.csv('labeled_data.csv',header=True)
+    df_csv = spark.read.parquet("labeled_data")
+    #df_csv = spark.read.csv('labeled_data.csv',header=True)
     #df_csv.printSchema()
     #df_csv.describe().show()#give summary that include count, mean, stddev, min, max
     return df_csv
@@ -71,11 +74,13 @@ def task2(df_csv,df_cmnt):
 
 def connect_all_string(string_list):
     str = ' '.join(string_list)
-    print(str, file=open("output1.txt", "a"))
+    print(str, file=open("output1.txt", "w"))
     return str
 
 #maybe task5 too?
 def task4():
+    spark.udf.register("sanitize", cleantext.sanitize); #UDF
+    spark.udf.register("connect_all_string", connect_all_string);
     spark.sql("SELECT Input_id, connect_all_string(sanitize(comment_body)) AS n_grams  FROM task2_table").show()
 
 def main(context):
@@ -91,8 +96,8 @@ if __name__ == "__main__":
 #sqlContext = SQLContext(sc)
 #sc.addPyFile("cleantext.py")
 #main(sqlContext)
-    spark.udf.register("sanitize", cleantext.sanitize); #UDF
-    spark.udf.register("connect_all_string", connect_all_string);
+    # spark.udf.register("sanitize", cleantext.sanitize); #UDF
+    # spark.udf.register("connect_all_string", connect_all_string);
     df_cmnt = comment_laveledData()
     submission_levelData()
     df_csv = read_csv_file()
