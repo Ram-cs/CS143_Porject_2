@@ -73,22 +73,23 @@ def task2():
     
     # csv_table = spark.sql("SELECT * FROM df_table")
 
-    query = spark.sql("SELECT data_table.Input_id, data_table.labeldem, data_table.labelgop, data_table.labeldjt, comment_table.body FROM data_table JOIN comment_table ON data_table.Input_id = comment_table.id")
+    query = spark.sql("SELECT data_table.Input_id, data_table.labeldem, data_table.labelgop, data_table.labeldjt, comment_table.body as comment_body FROM data_table JOIN comment_table ON data_table.Input_id = comment_table.id")
     # query.show()
     query.write.saveAsTable("task2_table")
 
 def connect_all_string(string_list):
-    str = ' '.join(string_list)
-    print(str, file=open("output1.txt", "a"))
-    return str
-    # arr = []
-    # # unigram
-    # arr.append(string_list[1])
-    # # bigram
-    # arr.append(string_list[2])
-    # # trigram
-    # arr.append(string_list[3])
-    # return arr
+    # str = ' '.join(string_list)
+    # print(str, file=open("output1.txt", "a"))
+    # return str
+    arr = []
+    # unigram
+    arr.append(string_list[1])
+    # bigram
+    arr.append(string_list[2])
+    # trigram
+    arr.append(string_list[3])
+    print(arr, file=open("output1.txt", "a"))
+    return arr
 
 #maybe task5 too?
 def task4():

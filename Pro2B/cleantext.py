@@ -3,7 +3,7 @@
 """Clean comment text for easier parsing."""
 
 from __future__ import print_function
-
+from xml.sax import saxutils as su
 import re
 import string
 import argparse
@@ -301,7 +301,7 @@ def sanitize(text):
         """
 
     # YOUR CODE GOES BELOW:
-    return string_manupulation(text)  # returning list of 4 string
+    return string_manupulation(su.unescape(text))  # returning list of 4 string
 
 
 if __name__ == "__main__":
