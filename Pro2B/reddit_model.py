@@ -28,6 +28,11 @@ sc.addPyFile("cleantext.py")
 # submissions = sqlContext.read.json("/home/cs143/data/submissions.json.bz2") #gives the attibutes and its type
 # labeled_data = sqlContext.read.csv("labeled_data.csv", header=True, mode="DROPMALFORMED")
 
+# make parquet
+# comments.write.parquet("comments")
+# labeled_data.write.parquet("labeled_data")
+# submissions.write.parquet("submissions")
+
 comments = sqlContext.read.parquet("comments")
 submissions = sqlContext.read.parquet("submissions")
 labeled_data = sqlContext.read.parquet("labeled_data")
@@ -73,17 +78,17 @@ def task2():
     query.write.saveAsTable("task2_table")
 
 def connect_all_string(string_list):
-    # str = ' '.join(string_list)
-    # print(str, file=open("output1.txt", "a"))
-    # return str
-    arr = []
-    # unigram
-    arr.append(string_list[1])
-    # bigram
-    arr.append(string_list[2])
-    # trigram
-    arr.append(string_list[3])
-    return arr
+    str = ' '.join(string_list)
+    print(str, file=open("output1.txt", "a"))
+    return str
+    # arr = []
+    # # unigram
+    # arr.append(string_list[1])
+    # # bigram
+    # arr.append(string_list[2])
+    # # trigram
+    # arr.append(string_list[3])
+    # return arr
 
 #maybe task5 too?
 def task4():
