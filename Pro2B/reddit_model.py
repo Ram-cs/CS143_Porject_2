@@ -189,3 +189,71 @@ if __name__ == "__main__":
     # sqlContext = SQLContext(sc)
     # sc.addPyFile("cleantext.py")
     main(sqlContext)
+
+
+
+#Final Deliverable [[[JUST a ROUGH OUTLET OF CODE]]]
+######## 1 ########
+#Create a time series plot of positive and negative sentiment. This plot should contain two lines,
+# one for positive and one for negative. It must have data as an X axis and the percentage of comments
+# classified as each sentiment on the Y axis.
+import numpy as np
+from matplotlib import pyplot as plt
+X, Y = np.loadtxt('examplefile.txt',
+                  unpack=True,
+                  delimiter=',') #you can also load CSV file as well
+
+plt.title(" time series plot of positive and negative sentiment")
+plt.xlabel("data") #label x axis
+plt.ylabel("percentage of comments") #label y axix
+plt.plot(X, Y) #ploting graph
+plt.savefig("myfile.png") #saving file
+plt.show() #showing graph
+
+
+######## 2 ##########
+#Create 2 maps of the United States: one for positive sentiment and one for negative sentiment. Color the states by the percentage.
+
+#to do this we may have to use CHOROPLOT map that generate USA map based on the States
+
+
+######## 3 ##########
+#Create a third map of the United States that computes the difference: %Positive - %Negative.
+
+######## 4 ##########
+#Give a list of the top 10 positive stories (have the highest percentage of positive comments)
+# and the top 10 negative stories (have the highest percentage of negative comments).
+
+some_list = [-5, -1, -13, -11, 4, 8, 16, 32]
+max([n for n in some_list if n<0])
+#will output -1
+max([n for n in some_list  if n>0])
+#output 32
+
+
+######## 5 ##########
+#Create a scatterplot where the X axis is the Reddit score
+x = [2,3,4,3,4,5]
+y = [4,3,2,2,3,3]
+plt.scatter(x, y, label="some label", color="k")
+
+plt.title(" scatter graph")
+plt.xlabel("Reddit Score") #label x axis
+plt.ylabel("some") #Don't know if need this one??
+plt.plot(X, Y) #ploting graph
+plt.savefig("myfile.png") #saving file
+plt.show() #showing graph
+
+
+
+
+
+######## 6 ##########
+#Any other plots that make sense will receive extra credit.
+
+######## 7 ##########
+#Extra Credit: Produce the ROC curves for YOUR classifiers and compute the Area Under the Curve for each one, which is a measure of accuracy
+
+
+######## 8 ##########
+#Write a paragraph summarizing your findings. What does /r/politics think about President Trump? Does this vary by state? Over time? By story/submission?
