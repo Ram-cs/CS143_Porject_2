@@ -101,10 +101,27 @@ def connect_all_string(string_list):
 
 def task4():
     spark.udf.register("sanitize", cleantext.sanitize)  # UDF
-    spark.udf.register("connect_all_string", connect_all_string)
+    spark.udf.register("connect_all_string", connect_all_string, ArrayType(StringType()))
 
-    spark.sql(
-        "SELECT Input_id, connect_all_string(sanitize(comment_body)) AS n_grams  FROM task2_table").show()
+    query = spark.sql(
+        "SELECT Input_id, connect_all_string(sanitize(comment_body)) AS n_grams  FROM task2_table")
+    # query.show()
+    # query.printSchema()
+    query.write.saveAsTable("task4_table")
+
+#task 6A and 6B
+def task6():
+
+    querytask6 = spark.sql("SELECT Input_id,n_grams, IF(labeldjt='1','1','0') AS positive_djt, IF(labeldjt='-1','1','0') AS negative_djt FROM task4_table")
+    querytask6.show()
+    #reference https://stackoverflow.com/questions/38189088/convert-comma-separated-string-to-array-in-pyspark-dataframe
+    # querytask6= querytask6.select(split(col("n_grams"), ",\s*").alias("n_grams"),col("positive_djt"),col("negative_djt")) #convert the "combined n_grams " from string form to actual array form
+
+    # #reference: http://spark.apache.org/docs/2.2.0/api/python/pyspark.ml.html
+    # cv = CountVectorizer(minDF=5.0, vocabSize=1 << 18, binary=True, inputCol="n_grams", outputCol="vectors")
+    # model = cv.fit(querytask6)
+    # task6Result = model.transform(querytask6)
+    # task6Result.show(truncate=False) # for a better look of the table , remove "truncate=False"
 
 
 def modelfit():
@@ -156,7 +173,7 @@ def main(context):
     # YOU MAY ADD OTHER FUNCTIONS AS NEEDED
     task2()
     task4()
-
+    task6()
 
 if __name__ == "__main__":
     # comment_laveledData()
