@@ -114,25 +114,28 @@ def task4():
 #task 6A and 6B
 def task6():
 
-    querytask6 = spark.sql("SELECT Input_id,n_grams, IF(labeldjt='1','1','0') AS positive_djt, IF(labeldjt='-1','1','0') AS negative_djt FROM task4_table")
+    querytask6 = spark.sql("SELECT Input_id,n_grams , IF(labeldjt='1',1,0) AS positive_djt, IF(labeldjt='-1',1,0) AS negative_djt FROM task4_table")
     #querytask6.show()
     #reference https://stackoverflow.com/questions/38189088/convert-comma-separated-string-to-array-in-pyspark-dataframe
     querytask6= querytask6.select(split(col("n_grams"), ",\s*").alias("n_grams"),col("positive_djt"),col("negative_djt")) #convert the "combined n_grams " from string form to actual array form
 
     #reference: http://spark.apache.org/docs/2.2.0/api/python/pyspark.ml.html
-    cv = CountVectorizer(minDF=5.0, vocabSize=1 << 18, binary=True, inputCol="n_grams", outputCol="vectors")
+    cv = CountVectorizer(minDF=5.0, vocabSize=1 << 18, binary=True, inputCol="n_grams", outputCol="features")
     model = cv.fit(querytask6)
     task6Result = model.transform(querytask6)
-    task6Result.show(truncate=False) # for a better look of the table , remove "truncate=False"
+    task6Result.printSchema() # for a better look of the table , remove "truncate=False"
+    task6Result.write.saveAsTable("task6_table");
 
-
+#task 7
 def modelfit():
     # Initialize two logistic regression models.
     # Replace labelCol with the column containing the label, and featuresCol with the column containing the features.
+    pos = spark.sql("SELECT features,positive_djt  AS label FROM task6_table ")
+    neg = spark.sql("SELECT features ,negative_djt  AS label FROM task6_table ")
     poslr = LogisticRegression(
-        labelCol="poslabel", featuresCol="features", maxIter=10)
+        labelCol="label", featuresCol="features", maxIter=10)
     neglr = LogisticRegression(
-        labelCol="neglabel", featuresCol="features", maxIter=10)
+        labelCol="label", featuresCol="features", maxIter=10)
     # This is a binary classifier so we need an evaluator that knows how to deal with binary classifiers.
     posEvaluator = BinaryClassificationEvaluator()
     negEvaluator = BinaryClassificationEvaluator()
@@ -165,8 +168,8 @@ def modelfit():
     negModel = negCrossval.fit(negTrain)
 
     # Once we train the models, we don't want to do it again. We can save the models and load them again later.
-    posModel.save("www/pos.model")
-    negModel.save("www/neg.model")
+    posModel.write().overwrite().save("www/pos.model")
+    negModel.write().overwrite().save("www/neg.model")
 
 
 def main(context):
@@ -176,6 +179,7 @@ def main(context):
     task2()
     task4()
     task6()
+    modelfit()
 
 
 if __name__ == "__main__":
@@ -197,6 +201,7 @@ if __name__ == "__main__":
 #Create a time series plot of positive and negative sentiment. This plot should contain two lines,
 # one for positive and one for negative. It must have data as an X axis and the percentage of comments
 # classified as each sentiment on the Y axis.
+"""
 import numpy as np
 from matplotlib import pyplot as plt
 X, Y = np.loadtxt('examplefile.txt',
@@ -257,3 +262,4 @@ plt.show() #showing graph
 
 ######## 8 ##########
 #Write a paragraph summarizing your findings. What does /r/politics think about President Trump? Does this vary by state? Over time? By story/submission?
+"""
