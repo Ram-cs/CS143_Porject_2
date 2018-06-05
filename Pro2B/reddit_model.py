@@ -45,6 +45,8 @@ comments = sqlContext.read.parquet("comments")
 submissions = sqlContext.read.parquet("submissions")
 labeled_data = sqlContext.read.parquet("labeled_data")
 
+
+
 # TASK 1
 # run spark frame
 spark = SparkSession \
@@ -171,15 +173,38 @@ def modelfit():
     posModel.write().overwrite().save("www/pos.model")
     negModel.write().overwrite().save("www/neg.model")
 
+#task 8
+def task8():
+    #1
+    comments.createOrReplaceTempView("comment_data")
+    sqlDF = spark.sql("SELECT created_utc as comment_timestamp FROM comment_data")
+#    sqlDF.show() #debugging purpose
+    sqlDF.write.saveAsTable("task8_timestamp")
+
+    #2
+    submissions.createOrReplaceTempView("submission_data")
+    sqlDF_submission = spark.sql("SELECT title FROM comment_data JOIN submission_data ON CONCAT('t3_',comment_data.link_id) = submission_data.id")
+#    sqlDF_submission.show() #debugging purpose
+    sqlDF_submission.write.saveAsTable("task8_timestamp")
+
+    #3
+    sqlDF_3 = spark.sql("SELECT author_flair_text as state FROM submission_data")
+#    sqlDF_3.show() #debuggine purpose
+    sqlDF_3.write.saveAsTable("task8_state")
+
+
+
 
 def main(context):
     """Main function takes a Spark SQL context."""
     # YOUR CODE HERE
     # YOU MAY ADD OTHER FUNCTIONS AS NEEDED
-    task2()
-    task4()
-    task6()
-    modelfit()
+#    task2()
+#    task4()
+#    task6()
+#    modelfit()
+    print("*****************")
+    task8()
 
 
 if __name__ == "__main__":
