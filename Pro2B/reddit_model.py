@@ -173,6 +173,22 @@ def modelfit():
     posModel.write().overwrite().save("www/pos.model")
     negModel.write().overwrite().save("www/neg.model")
 
+#task9
+"""
+spark.sql("DELETE FROM task8_table WHERE comment_body LIKE '&gt%' OR comment_body LIKE '%/s%').write.saveAsTable("task9_table1")
+spark.sql("SELECT")
+
+querytask9_1 = spark.sql("SELECT Input_id, connect_all_string(sanitize(comment_body)) AS n_grams  FROM task9_table1")
+querytask9_1= querytask9_1.select(split(col("n_grams"), ",\s*").alias("n_grams"))
+#cv = CountVectorizer(minDF=5.0, vocabSize=1 << 18, binary=True, inputCol="n_grams", outputCol="features")
+model9 = cv.transform(querytask9_1)
+task9Result = model9.transform(querytask9_1)
+task9Result.write.saveAsTable("task9_table2")
+model_pos = CrossValidatorModel.load("www/pos.model")
+model_neg = CrossValidatorModel.load("www/neg.model")
+pos_ans = posModel.transform(task9Result)
+pos_ans.show()
+"""
 #task 8
 def task8():
     #1
@@ -561,5 +577,3 @@ plt.show() #showing graph
 ######## 8 ##########
 #Write a paragraph summarizing your findings. What does /r/politics think about President Trump? Does this vary by state? Over time? By story/submission?
 """
-
-
