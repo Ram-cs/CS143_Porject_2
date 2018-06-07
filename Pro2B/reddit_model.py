@@ -189,26 +189,31 @@ model_neg = CrossValidatorModel.load("www/neg.model")
 pos_ans = posModel.transform(task9Result)
 pos_ans.show()
 """
-#task 8
-def task8():
+    #task 8
+    def task8():
     #1
     comments.createOrReplaceTempView("comment_data")
-    sqlDF = spark.sql("SELECT created_utc as comment_timestamp FROM comment_data")
+    sqlDF = spark.sql("SELECT id as comment_id, body as comment_text, created_utc as comment_timestamp, link_id FROM comment_data")
     sqlDF.show() #debugging purpose
-    #sqlDF.write.saveAsTable("task8_timestamp")
+    sqlDF.write.saveAsTable("comment_table")
 
-    #2
+
+    #2, #3
     submissions.createOrReplaceTempView("submission_data")
-    sqlDF_submission = spark.sql("SELECT title FROM comment_data JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id")
+    sqlDF_submission = spark.sql("SELECT title, submission_data.author_flair_text as state, comment_data.link_id as link_ID FROM comment_data JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id")
     sqlDF_submission.show() #debugging purpose
-    #sqlDF_submission.write.saveAsTable("task8_timestamp")
+    sqlDF_submission.write.saveAsTable("submission_table")
+
+    #combining #1, #2, #3
+
+    one_table = spark.sql("SELECT comment_id, comment_text, comment_timestamp, title, state FROM comment_table INNER JOIN submission_table ON comment_table.link_id = submission_table.link_ID")
+    one_table.show()
 
     #3
-    sqlDF_3 = spark.sql("SELECT author_flair_text as state FROM submission_data")
-    sqlDF_3.show() #debuggine purpose
+    #sqlDF_3 = spark.sql("SELECT author_flair_text as state FROM submission_data")
+    #sqlDF_3.show() #debuggine purpose
     #sqlDF_3.write.saveAsTable("task8_state")
 
-#task 9
 
 
 def main(context):
