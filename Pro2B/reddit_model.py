@@ -199,7 +199,7 @@ model_neg = CrossValidatorModel.load("www/neg.model")
 pos_ans = posModel.transform(task9Result)
 pos_ans.show()
 """
-#task 8
+    #task 8
 def task8():
     #1
     comments.createOrReplaceTempView("comment_data")
@@ -220,7 +220,6 @@ def task8():
     # sqlDF_3.show() #debuggine purpose
     # #sqlDF_3.write.saveAsTable("task8_state")
 
-#task 9
 
 
 
