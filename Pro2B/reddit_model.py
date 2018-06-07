@@ -29,10 +29,14 @@ conf = conf.setMaster("local[*]")
 sc = SparkContext(conf=conf)
 sqlContext = SQLContext(sc)
 sc.addPyFile("cleantext.py")
+sc.setLogLevel("WARN")
 # sc = SparkContext.getOrCreate()
 # sqlContext = SQLContext(sc)
 # sc.addPyFile("cleantext.py")
 # TODO change paths when submitting
+
+# task 1
+
 #comments = sqlContext.read.json("/home/cs143/data/comments-minimal.json.bz2") #gives the attibutes and its type
 #submissions = sqlContext.read.json("/home/cs143/data/submissions.json.bz2") #gives the attibutes and its type
 #labeled_data = sqlContext.read.csv("labeled_data.csv", header=True, mode="DROPMALFORMED")
@@ -45,7 +49,15 @@ comments = sqlContext.read.parquet("comments")
 submissions = sqlContext.read.parquet("submissions")
 labeled_data = sqlContext.read.parquet("labeled_data")
 
-
+states = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 
+    'Connecticut', 'Delaware', 'District of Columbia', 'Florida', 'Georgia', 
+    'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 
+    'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 
+    'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 
+    'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 
+    'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 
+    'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 
+    'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming']
 
 # TASK 1
 # run spark frame
@@ -100,9 +112,7 @@ def connect_all_string(string_list):
     #print(arr, file=open("output1.txt", "a"))
     return ', '.join(arr) #I changed this back to a string of a, b, c, d, e, etc..... Because the form [a,b,c,d,e] is STILL A STRING, not an array.
 
-# maybe task5 too?
-
-
+# task 4 and 5
 def task4():
     spark.udf.register("sanitize", cleantext.sanitize)  # UDF
     spark.udf.register("connect_all_string", connect_all_string)
@@ -193,22 +203,28 @@ pos_ans.show()
 def task8():
     #1
     comments.createOrReplaceTempView("comment_data")
-    sqlDF = spark.sql("SELECT created_utc as comment_timestamp FROM comment_data")
+    submissions.createOrReplaceTempView("submission_data")
+    #sqlDF = spark.sql("SELECT comment_data.created_utc as comment_timestamp, comment_data.id, comment_data.body FROM comment_data JOIN (SELECT title FROM comment_data JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id) t2 ON ")
+    sqlDF = spark.sql("SELECT comment_data.id, comment_data.created_utc as comment_timestamp, comment_data.body, submission_data.title, submission_data.author_flair_text as state FROM comment_data JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id")
     sqlDF.show() #debugging purpose
     #sqlDF.write.saveAsTable("task8_timestamp")
 
     #2
-    submissions.createOrReplaceTempView("submission_data")
-    sqlDF_submission = spark.sql("SELECT title FROM comment_data JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id")
-    sqlDF_submission.show() #debugging purpose
-    #sqlDF_submission.write.saveAsTable("task8_timestamp")
+    
+    # sqlDF_submission = spark.sql("SELECT title FROM comment_data JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id")
+    # sqlDF_submission.show() #debugging purpose
+    # #sqlDF_submission.write.saveAsTable("task8_timestamp")
 
     #3
-    sqlDF_3 = spark.sql("SELECT author_flair_text as state FROM submission_data")
-    sqlDF_3.show() #debuggine purpose
-    #sqlDF_3.write.saveAsTable("task8_state")
+    # sqlDF_3 = spark.sql("SELECT author_flair_text as state FROM submission_data")
+    # sqlDF_3.show() #debuggine purpose
+    # #sqlDF_3.write.saveAsTable("task8_state")
 
 #task 9
+
+
+# #task 10
+# def task10():
 
 
 def main(context):
@@ -369,6 +385,7 @@ from matplotlib.colors import rgb2hex
 from matplotlib.patches import Polygon
 
 """
+"""
     IMPORTANT
     This is EXAMPLE code.
     There are a few things missing:
@@ -385,7 +402,8 @@ from matplotlib.patches import Polygon
 
 """
     PLOT 1: SENTIMENT OVER TIME (TIME SERIES PLOT)
-    """
+"""
+"""
 # Assumes a file called time_data.csv that has columns
 # date, Positive, Negative. Use absolute path.
 
@@ -403,10 +421,11 @@ ax = ts.plot(title="President Trump Sentiment on /r/politics Over Time",
 ax.plot()
 
 """
+"""
     PLOT 2: SENTIMENT BY STATE (POSITIVE AND NEGATIVE SEPARATELY)
     # This example only shows positive, I will leave negative to you.
     """
-
+"""
 # This assumes you have a CSV file called "state_data.csv" with the columns:
 # state, Positive, Negative
 #
@@ -415,12 +434,13 @@ ax.plot()
 state_data = pd.read_csv("state_data.csv")
 
 """
+"""
     You also need to download the following files. Put them somewhere convenient:
     https://github.com/matplotlib/basemap/blob/master/examples/st99_d00.shp
     https://github.com/matplotlib/basemap/blob/master/examples/st99_d00.dbf
     https://github.com/matplotlib/basemap/blob/master/examples/st99_d00.shx
     """
-
+"""
 # Lambert Conformal map of lower 48 states.
 m = Basemap(llcrnrlon=-119, llcrnrlat=22, urcrnrlon=-64, urcrnrlat=49,
             projection='lcc', lat_1=33, lat_2=45, lon_0=-95)
@@ -459,12 +479,14 @@ plt.show()
 # (this misses Alaska and Hawaii. If you can get them to work, EXTRA CREDIT)
 
 """
+"""
     PART 4 SHOULD BE DONE IN SPARK
     """
 
 """
     PLOT 5A: SENTIMENT BY STORY SCORE
-    """
+"""
+"""
 # What is the purpose of this? It helps us determine if the story score
 # should be a feature in the model. Remember that /r/politics is pretty
 # biased.
@@ -484,10 +506,11 @@ plt.legend(loc='lower right');
 plt.xlabel('President Trump Sentiment by Submission Score')
 plt.ylabel("Percent Sentiment")
 plt.show()
-
+"""
 """
     PLOT 5B: SENTIMENT BY COMMENT SCORE
-    """
+"""
+"""
 # What is the purpose of this? It helps us determine if the comment score
 # should be a feature in the model. Remember that /r/politics is pretty
 # biased.
