@@ -207,7 +207,7 @@ def task8():
     #sqlDF = spark.sql("SELECT comment_data.created_utc as comment_timestamp, comment_data.id, comment_data.body FROM comment_data JOIN (SELECT title FROM comment_data JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id) t2 ON ")
     sqlDF = spark.sql("SELECT comment_data.id, comment_data.created_utc as comment_timestamp, comment_data.body, submission_data.title, submission_data.author_flair_text as state FROM comment_data JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id")
     sqlDF.show() #debugging purpose
-    #sqlDF.write.saveAsTable("task8_timestamp")
+    sqlDF.write.saveAsTable("task8_table")
 
     #2
     
@@ -221,6 +221,7 @@ def task8():
     # #sqlDF_3.write.saveAsTable("task8_state")
 
 #task 9
+
 
 
 # #task 10
