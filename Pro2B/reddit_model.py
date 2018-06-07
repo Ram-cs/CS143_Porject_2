@@ -206,7 +206,7 @@ def task8():
     submissions.createOrReplaceTempView("submission_data")
     #sqlDF = spark.sql("SELECT comment_data.created_utc as comment_timestamp, comment_data.id, comment_data.body FROM comment_data JOIN (SELECT title FROM comment_data JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id) t2 ON ")
     sqlDF = spark.sql("SELECT comment_data.id, comment_data.created_utc as comment_timestamp, comment_data.body, submission_data.title, submission_data.author_flair_text as state FROM comment_data JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id")
-    sqlDF.show() #debugging purpose
+    # sqlDF.show() #debugging purpose
     sqlDF.write.saveAsTable("task8_table")
 
     #2
@@ -221,11 +221,22 @@ def task8():
     # #sqlDF_3.write.saveAsTable("task8_state")
 
 
-
-
-# #task 10
-# def task10():
-
+#task 10
+def task10():
+    comments.createOrReplaceTempView("comment_data")
+    # across all posts
+    all_posts = spark.sql("SELECT SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table")
+    all_posts.show()
+    # across all days
+    all_days = spark.sql("SELECT SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table GROUP BY DAY(FROM_UNIXTIME(comment_timestamp))")
+    # across all states
+    for state in states:
+        query_string = "SELECT SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table WHERE state = " + state
+        spark.sql(query_string).show()
+    # across comment score
+    all_comment_score = spark.sql("SELECT SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table JOIN comment_data ON task9_table.id = comment_data.id GROUP BY comment_data.score")
+    # across story score (submission score)
+    all_submission_score = spark.sql("SELECT SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table JOIN comment_data ON task9_table.id = comment_data.id JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id GROUP BY submission_data.score")
 
 def main(context):
     """Main function takes a Spark SQL context."""
