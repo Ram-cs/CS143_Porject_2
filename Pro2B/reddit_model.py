@@ -211,20 +211,17 @@ def task8():
 
 def task9(task6model):
 
-    #spark.sql("DELETE FROM task8_table WHERE comment_body LIKE '&gt%' OR comment_body LIKE '%/s%'")
-
 
     # querytask9_0 = spark.sql("SELECT id,comment_timestamp,title,state,comment_body FROM task8_table  WHERE comment_body NOT LIKE '&gt%' AND comment_body NOT LIKE '%/s%'")
     # querytask9_0.write.saveAsTable("task9_table1")
     # querytask9_1 = spark.sql("SELECT id, connect_all_string(sanitize(comment_body)) AS n_grams, comment_timestamp,title,state,comment_body  FROM task9_table1")
     # querytask9_2= querytask9_1.select(split(col("n_grams"), ",\s*").alias("n_grams") ,col("id") ,col("comment_timestamp"),col("title"),col("state"),col("comment_body"))
-    # #cv = CountVectorizer(minDF=5.0, vocabSize=1 << 18, binary=True, inputCol="n_grams", outputCol="features")
+
     # task9df = task6model.transform(querytask9_2)
     # task9df.printSchema()
     # task9df = task9df.write.saveAsTable("task9_table2")
     # querytask9_3 = spark.sql("SELECT id,  n_grams, comment_timestamp,title,state,comment_body, features, features AS features_backup  FROM task9_table2")
-    # #task9Result = model9.transform(querytask9_1)
-    # #task9Result.write.saveAsTable("task9_table2")
+
     # model_pos = CrossValidatorModel.load("www/pos.model")
     # model_neg = CrossValidatorModel.load("www/neg.model")
     # pos_ans = model_pos.transform(querytask9_3).write.saveAsTable("pos_table")
@@ -232,11 +229,7 @@ def task9(task6model):
     # task9df_withPos = spark.sql("SELECT id,comment_timestamp,title,state,comment_body,prediction AS pos, features_backup AS features, probability AS pos_probability  FROM pos_table")
     # task9df_withPos.show()
     # neg_ans = model_neg.transform(task9df_withPos).write.saveAsTable("neg_table")
-    # #pos_ans.show()
-    # #neg_ans.show()
 
-    # #the following line takes forever to run.
-    # #task9result = spark.sql("SELECT task8_table.id, task8_table.comment_timestamp, task8_table.title, task8_table.state, task8_table.comment_body, pos_table.prediction AS pos, neg_table.prediction AS neg FROM task8_table JOIN pos_table ON task8_table.id=pos_table.id JOIN neg_table ON task8_table.id=neg_table.id" )
     # task9result = spark.sql("SELECT id,comment_timestamp,title,state,comment_body, pos , prediction AS neg FROM neg_table")
 
     # task9result.write.parquet("task9result_parquet") #store parquet
@@ -286,7 +279,7 @@ def main(context):
     task2()
     task4()
     task6model = task6()
-    modelfit()
+    #modelfit()
     task8()
     task9(task6model)
     task10()
