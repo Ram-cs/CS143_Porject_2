@@ -254,23 +254,30 @@ def task10():
     # across all posts
     all_posts = spark.sql("SELECT SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table")
     all_posts.show()
+    all_posts.repartition(1).write.format("com.databricks.spark.csv").option("header", "true").save("all_posts.csv")
+
+
     # across all days 
-    all_days = spark.sql("SELECT DATE(FROM_UNIXTIME(comment_timestamp)) as `date`, SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table GROUP BY DATE(FROM_UNIXTIME(comment_timestamp))")
+    all_days = spark.sql("SELECT DATE(FROM_UNIXTIME(comment_timestamp)) as `date`, SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as Positive, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as Negative FROM task9_table GROUP BY DATE(FROM_UNIXTIME(comment_timestamp))")
     all_days.show()
+    all_days.repartition(1).write.format("com.databricks.spark.csv").option("header", "true").save("all_days.csv")
 
     # across all states
-    query_string = "SELECT task9_table.state as state, SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table JOIN states_table ON task9_table.state = states_table.value GROUP BY state"
-    spark.sql(query_string).show()
+    query_string = "SELECT task9_table.state as state, SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as Positive, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as Negative FROM task9_table JOIN states_table ON task9_table.state = states_table.value GROUP BY state"
+    all_states = spark.sql(query_string)
+    all_states.show()
+    all_states.repartition(1).write.format("com.databricks.spark.csv").option("header", "true").save("all_states.csv")
 
-    # for state in states:
-    #     query_string = "SELECT SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table WHERE state = " + state
-    #     spark.sql(query_string).show()
     # across comment score
-    all_comment_score = spark.sql("SELECT comment_data.score as comment_score, SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table JOIN comment_data ON task9_table.id = comment_data.id GROUP BY comment_data.score")
+    all_comment_score = spark.sql("SELECT comment_data.score as comment_score, SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as Positive, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as Negative FROM task9_table JOIN comment_data ON task9_table.id = comment_data.id GROUP BY comment_data.score")
     all_comment_score.show()
+    all_comment_score.repartition(1).write.format("com.databricks.spark.csv").option("header", "true").save("all_comment_score.csv")
+
     # across story score (submission score)
-    all_submission_score = spark.sql("SELECT submission_data.score as submission_score, SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table JOIN comment_data ON task9_table.id = comment_data.id JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id GROUP BY submission_data.score")
+    all_submission_score = spark.sql("SELECT submission_data.score as submission_score, SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as Positive, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as Negative FROM task9_table JOIN comment_data ON task9_table.id = comment_data.id JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id GROUP BY submission_data.score")
     all_submission_score.show()
+    all_submission_score.repartition(1).write.format("com.databricks.spark.csv").option("header", "true").save("all_submission_score.csv")
+
 
 def main(context):
     """Main function takes a Spark SQL context."""
