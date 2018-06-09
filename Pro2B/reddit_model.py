@@ -4,7 +4,7 @@ from pyspark.sql import SQLContext
 
 # Bunch of imports (may need more)
 from pyspark.ml.classification import LogisticRegression
-from pyspark.ml.tuning import CrossValidator, ParamGridBuilder
+from pyspark.ml.tuning import CrossValidator, ParamGridBuilder ,CrossValidatorModel
 from pyspark.ml.evaluation import BinaryClassificationEvaluator
 from pyspark.ml.feature import CountVectorizer
 
@@ -37,26 +37,27 @@ sc.setLogLevel("WARN")
 
 # task 1
 
-#comments = sqlContext.read.json("/home/cs143/data/comments-minimal.json.bz2") #gives the attibutes and its type
-#submissions = sqlContext.read.json("/home/cs143/data/submissions.json.bz2") #gives the attibutes and its type
-#labeled_data = sqlContext.read.csv("labeled_data.csv", header=True, mode="DROPMALFORMED")
+comments = sqlContext.read.json("/home/cs143/data/comments-minimal.json.bz2") #gives the attibutes and its type
+comments = comments.sample(False, 0.02, None) #TODO this only use 20% of data. Remove this when submitting!!
+submissions = sqlContext.read.json("/home/cs143/data/submissions.json.bz2") #gives the attibutes and its type
+labeled_data = sqlContext.read.csv("labeled_data.csv", header=True, mode="DROPMALFORMED")
 
 # make parquet
-#comments.write.parquet("comments")
-#labeled_data.write.parquet("labeled_data")
-#submissions.write.parquet("submissions")
+comments.write.parquet("comments") #TODO if you want to keep the 100% data (now we have 2%), rename parquet files to something else
+labeled_data.write.parquet("labeled_data") #TODO if you want to keep the 100% data (now we have 2%), rename parquet files to something else
+submissions.write.parquet("submissions") #TODO if you want to keep the 100% data (now we have 2%), rename parquet files to something else
 comments = sqlContext.read.parquet("comments")
 submissions = sqlContext.read.parquet("submissions")
 labeled_data = sqlContext.read.parquet("labeled_data")
 
-states = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 
-    'Connecticut', 'Delaware', 'District of Columbia', 'Florida', 'Georgia', 
-    'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 
-    'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 
-    'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 
-    'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 
-    'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 
-    'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 
+states = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado',
+    'Connecticut', 'Delaware', 'District of Columbia', 'Florida', 'Georgia',
+    'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky',
+    'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota',
+    'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire',
+    'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota',
+    'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island',
+    'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont',
     'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming']
 
 # TASK 1
@@ -84,8 +85,8 @@ spark = SparkSession \
 #     df_csv.describe().show()#give summary that include count, mean, stddev, min, max
 
 # TASK 2
-# functional dependencies implied by the data.
 
+# functional dependencies implied by the data.
 def task2():
     comments.createOrReplaceTempView("comment_table")
     #comment_table = spark.sql("SELECT id, body FROM cmnt_table")
@@ -136,7 +137,8 @@ def task6():
     model = cv.fit(querytask6)
     task6Result = model.transform(querytask6)
     task6Result.printSchema() # for a better look of the table , remove "truncate=False"
-    task6Result.write.saveAsTable("task6_table");
+    task6Result.write.saveAsTable("task6_table")
+    return model
 
 #task 7
 def modelfit():
@@ -145,9 +147,9 @@ def modelfit():
     pos = spark.sql("SELECT features,positive_djt  AS label FROM task6_table ")
     neg = spark.sql("SELECT features ,negative_djt  AS label FROM task6_table ")
     poslr = LogisticRegression(
-        labelCol="label", featuresCol="features", maxIter=10)
+        labelCol="label", featuresCol="features", maxIter=10).setThreshold(0.2)
     neglr = LogisticRegression(
-        labelCol="label", featuresCol="features", maxIter=10)
+        labelCol="label", featuresCol="features", maxIter=10).setThreshold(0.25)
     # This is a binary classifier so we need an evaluator that knows how to deal with binary classifiers.
     posEvaluator = BinaryClassificationEvaluator()
     negEvaluator = BinaryClassificationEvaluator()
@@ -182,35 +184,20 @@ def modelfit():
     # Once we train the models, we don't want to do it again. We can save the models and load them again later.
     posModel.write().overwrite().save("www/pos.model")
     negModel.write().overwrite().save("www/neg.model")
+    #return posModel,negModel
 
-#task9
-"""
-spark.sql("DELETE FROM task8_table WHERE comment_body LIKE '&gt%' OR comment_body LIKE '%/s%').write.saveAsTable("task9_table1")
-spark.sql("SELECT")
-
-querytask9_1 = spark.sql("SELECT Input_id, connect_all_string(sanitize(comment_body)) AS n_grams  FROM task9_table1")
-querytask9_1= querytask9_1.select(split(col("n_grams"), ",\s*").alias("n_grams"))
-#cv = CountVectorizer(minDF=5.0, vocabSize=1 << 18, binary=True, inputCol="n_grams", outputCol="features")
-model9 = cv.transform(querytask9_1)
-task9Result = model9.transform(querytask9_1)
-task9Result.write.saveAsTable("task9_table2")
-model_pos = CrossValidatorModel.load("www/pos.model")
-model_neg = CrossValidatorModel.load("www/neg.model")
-pos_ans = posModel.transform(task9Result)
-pos_ans.show()
-"""
-    #task 8
+    # task 8
 def task8():
     #1
     comments.createOrReplaceTempView("comment_data")
     submissions.createOrReplaceTempView("submission_data")
     #sqlDF = spark.sql("SELECT comment_data.created_utc as comment_timestamp, comment_data.id, comment_data.body FROM comment_data JOIN (SELECT title FROM comment_data JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id) t2 ON ")
-    sqlDF = spark.sql("SELECT comment_data.id, comment_data.created_utc as comment_timestamp, comment_data.body, submission_data.title, submission_data.author_flair_text as state FROM comment_data JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id")
+    sqlDF = spark.sql("SELECT comment_data.id, comment_data.created_utc as comment_timestamp, comment_data.body AS comment_body, submission_data.title, submission_data.author_flair_text as state FROM comment_data JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id")
     # sqlDF.show() #debugging purpose
     sqlDF.write.saveAsTable("task8_table")
 
     #2
-    
+
     # sqlDF_submission = spark.sql("SELECT title FROM comment_data JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id")
     # sqlDF_submission.show() #debugging purpose
     # #sqlDF_submission.write.saveAsTable("task8_timestamp")
@@ -220,6 +207,43 @@ def task8():
     # sqlDF_3.show() #debuggine purpose
     # #sqlDF_3.write.saveAsTable("task8_state")
 
+
+
+def task9(task6model):
+
+    #spark.sql("DELETE FROM task8_table WHERE comment_body LIKE '&gt%' OR comment_body LIKE '%/s%'")
+
+
+    querytask9_0 = spark.sql("SELECT id,comment_timestamp,title,state,comment_body FROM task8_table  WHERE comment_body NOT LIKE '&gt%' AND comment_body NOT LIKE '%/s%'")
+    querytask9_0.write.saveAsTable("task9_table1")
+    querytask9_1 = spark.sql("SELECT id, connect_all_string(sanitize(comment_body)) AS n_grams, comment_timestamp,title,state,comment_body  FROM task9_table1")
+    querytask9_2= querytask9_1.select(split(col("n_grams"), ",\s*").alias("n_grams") ,col("id") ,col("comment_timestamp"),col("title"),col("state"),col("comment_body"))
+    #cv = CountVectorizer(minDF=5.0, vocabSize=1 << 18, binary=True, inputCol="n_grams", outputCol="features")
+    task9df = task6model.transform(querytask9_2)
+    task9df.printSchema()
+    task9df = task9df.write.saveAsTable("task9_table2")
+    querytask9_3 = spark.sql("SELECT id,  n_grams, comment_timestamp,title,state,comment_body, features, features AS features_backup  FROM task9_table2")
+    #task9Result = model9.transform(querytask9_1)
+    #task9Result.write.saveAsTable("task9_table2")
+    model_pos = CrossValidatorModel.load("www/pos.model")
+    model_neg = CrossValidatorModel.load("www/neg.model")
+    pos_ans = model_pos.transform(querytask9_3).write.saveAsTable("pos_table")
+
+    task9df_withPos = spark.sql("SELECT id,comment_timestamp,title,state,comment_body,prediction AS pos, features_backup AS features, probability AS pos_probability  FROM pos_table")
+    task9df_withPos.show()
+    neg_ans = model_neg.transform(task9df_withPos).write.saveAsTable("neg_table")
+    #pos_ans.show()
+    #neg_ans.show()
+
+    #the following line takes forever to run.
+    #task9result = spark.sql("SELECT task8_table.id, task8_table.comment_timestamp, task8_table.title, task8_table.state, task8_table.comment_body, pos_table.prediction AS pos, neg_table.prediction AS neg FROM task8_table JOIN pos_table ON task8_table.id=pos_table.id JOIN neg_table ON task8_table.id=neg_table.id" )
+    task9result = spark.sql("SELECT id,comment_timestamp,title,state,comment_body, pos , prediction AS neg FROM neg_table")
+
+    task9result.write.parquet("task9result_parquet") #store parquet
+
+
+    final_task9result = spark.read.parquet("task9result_parquet")
+    #final_task9result.write.saveAsTable("task9_table")
 
 #task 10
 def task10():
@@ -244,9 +268,10 @@ def main(context):
     # YOU MAY ADD OTHER FUNCTIONS AS NEEDED
     task2()
     task4()
-    task6()
+    task6model = task6()
     modelfit()
     task8()
+    task9(task6model)
 
 
 if __name__ == "__main__":
