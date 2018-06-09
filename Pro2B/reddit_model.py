@@ -8,7 +8,7 @@ from pyspark.ml.tuning import CrossValidator, ParamGridBuilder ,CrossValidatorMo
 from pyspark.ml.evaluation import BinaryClassificationEvaluator
 from pyspark.ml.feature import CountVectorizer
 
-from pyspark.sql.types import ArrayType, IntegerType
+from pyspark.sql.types import ArrayType, IntegerType, StringType
 from pyspark.sql.functions import col, split
 
 # IMPORT OTHER MODULES HERE
@@ -37,15 +37,15 @@ sc.setLogLevel("WARN")
 
 # task 1
 
-comments = sqlContext.read.json("/home/cs143/data/comments-minimal.json.bz2") #gives the attibutes and its type
-comments = comments.sample(False, 0.02, None) #TODO this only use 20% of data. Remove this when submitting!!
-submissions = sqlContext.read.json("/home/cs143/data/submissions.json.bz2") #gives the attibutes and its type
-labeled_data = sqlContext.read.csv("labeled_data.csv", header=True, mode="DROPMALFORMED")
+# comments = sqlContext.read.json("/home/cs143/data/comments-minimal.json.bz2") #gives the attibutes and its type
+# comments = comments.sample(False, 0.02, None) #TODO this only use 20% of data. Remove this when submitting!!
+# submissions = sqlContext.read.json("/home/cs143/data/submissions.json.bz2") #gives the attibutes and its type
+# labeled_data = sqlContext.read.csv("labeled_data.csv", header=True, mode="DROPMALFORMED")
 
 # make parquet
-comments.write.parquet("comments") #TODO if you want to keep the 100% data (now we have 2%), rename parquet files to something else
-labeled_data.write.parquet("labeled_data") #TODO if you want to keep the 100% data (now we have 2%), rename parquet files to something else
-submissions.write.parquet("submissions") #TODO if you want to keep the 100% data (now we have 2%), rename parquet files to something else
+# comments.write.parquet("comments") #TODO if you want to keep the 100% data (now we have 2%), rename parquet files to something else
+# labeled_data.write.parquet("labeled_data") #TODO if you want to keep the 100% data (now we have 2%), rename parquet files to something else
+# submissions.write.parquet("submissions") #TODO if you want to keep the 100% data (now we have 2%), rename parquet files to something else
 comments = sqlContext.read.parquet("comments")
 submissions = sqlContext.read.parquet("submissions")
 labeled_data = sqlContext.read.parquet("labeled_data")
@@ -214,53 +214,63 @@ def task9(task6model):
     #spark.sql("DELETE FROM task8_table WHERE comment_body LIKE '&gt%' OR comment_body LIKE '%/s%'")
 
 
-    querytask9_0 = spark.sql("SELECT id,comment_timestamp,title,state,comment_body FROM task8_table  WHERE comment_body NOT LIKE '&gt%' AND comment_body NOT LIKE '%/s%'")
-    querytask9_0.write.saveAsTable("task9_table1")
-    querytask9_1 = spark.sql("SELECT id, connect_all_string(sanitize(comment_body)) AS n_grams, comment_timestamp,title,state,comment_body  FROM task9_table1")
-    querytask9_2= querytask9_1.select(split(col("n_grams"), ",\s*").alias("n_grams") ,col("id") ,col("comment_timestamp"),col("title"),col("state"),col("comment_body"))
-    #cv = CountVectorizer(minDF=5.0, vocabSize=1 << 18, binary=True, inputCol="n_grams", outputCol="features")
-    task9df = task6model.transform(querytask9_2)
-    task9df.printSchema()
-    task9df = task9df.write.saveAsTable("task9_table2")
-    querytask9_3 = spark.sql("SELECT id,  n_grams, comment_timestamp,title,state,comment_body, features, features AS features_backup  FROM task9_table2")
-    #task9Result = model9.transform(querytask9_1)
-    #task9Result.write.saveAsTable("task9_table2")
-    model_pos = CrossValidatorModel.load("www/pos.model")
-    model_neg = CrossValidatorModel.load("www/neg.model")
-    pos_ans = model_pos.transform(querytask9_3).write.saveAsTable("pos_table")
+    # querytask9_0 = spark.sql("SELECT id,comment_timestamp,title,state,comment_body FROM task8_table  WHERE comment_body NOT LIKE '&gt%' AND comment_body NOT LIKE '%/s%'")
+    # querytask9_0.write.saveAsTable("task9_table1")
+    # querytask9_1 = spark.sql("SELECT id, connect_all_string(sanitize(comment_body)) AS n_grams, comment_timestamp,title,state,comment_body  FROM task9_table1")
+    # querytask9_2= querytask9_1.select(split(col("n_grams"), ",\s*").alias("n_grams") ,col("id") ,col("comment_timestamp"),col("title"),col("state"),col("comment_body"))
+    # #cv = CountVectorizer(minDF=5.0, vocabSize=1 << 18, binary=True, inputCol="n_grams", outputCol="features")
+    # task9df = task6model.transform(querytask9_2)
+    # task9df.printSchema()
+    # task9df = task9df.write.saveAsTable("task9_table2")
+    # querytask9_3 = spark.sql("SELECT id,  n_grams, comment_timestamp,title,state,comment_body, features, features AS features_backup  FROM task9_table2")
+    # #task9Result = model9.transform(querytask9_1)
+    # #task9Result.write.saveAsTable("task9_table2")
+    # model_pos = CrossValidatorModel.load("www/pos.model")
+    # model_neg = CrossValidatorModel.load("www/neg.model")
+    # pos_ans = model_pos.transform(querytask9_3).write.saveAsTable("pos_table")
 
-    task9df_withPos = spark.sql("SELECT id,comment_timestamp,title,state,comment_body,prediction AS pos, features_backup AS features, probability AS pos_probability  FROM pos_table")
-    task9df_withPos.show()
-    neg_ans = model_neg.transform(task9df_withPos).write.saveAsTable("neg_table")
-    #pos_ans.show()
-    #neg_ans.show()
+    # task9df_withPos = spark.sql("SELECT id,comment_timestamp,title,state,comment_body,prediction AS pos, features_backup AS features, probability AS pos_probability  FROM pos_table")
+    # task9df_withPos.show()
+    # neg_ans = model_neg.transform(task9df_withPos).write.saveAsTable("neg_table")
+    # #pos_ans.show()
+    # #neg_ans.show()
 
-    #the following line takes forever to run.
-    #task9result = spark.sql("SELECT task8_table.id, task8_table.comment_timestamp, task8_table.title, task8_table.state, task8_table.comment_body, pos_table.prediction AS pos, neg_table.prediction AS neg FROM task8_table JOIN pos_table ON task8_table.id=pos_table.id JOIN neg_table ON task8_table.id=neg_table.id" )
-    task9result = spark.sql("SELECT id,comment_timestamp,title,state,comment_body, pos , prediction AS neg FROM neg_table")
+    # #the following line takes forever to run.
+    # #task9result = spark.sql("SELECT task8_table.id, task8_table.comment_timestamp, task8_table.title, task8_table.state, task8_table.comment_body, pos_table.prediction AS pos, neg_table.prediction AS neg FROM task8_table JOIN pos_table ON task8_table.id=pos_table.id JOIN neg_table ON task8_table.id=neg_table.id" )
+    # task9result = spark.sql("SELECT id,comment_timestamp,title,state,comment_body, pos , prediction AS neg FROM neg_table")
 
-    task9result.write.parquet("task9result_parquet") #store parquet
+    # task9result.write.parquet("task9result_parquet") #store parquet
 
 
     final_task9result = spark.read.parquet("task9result_parquet")
-    #final_task9result.write.saveAsTable("task9_table")
+    final_task9result.write.saveAsTable("task9_table")
+    spark.sql("SELECT * FROM task9_table").show()
 
 #task 10
 def task10():
+    df = spark.createDataFrame(states, StringType()).write.saveAsTable("states_table")
     comments.createOrReplaceTempView("comment_data")
+    submissions.createOrReplaceTempView("submission_data")
     # across all posts
     all_posts = spark.sql("SELECT SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table")
     all_posts.show()
-    # across all days
-    all_days = spark.sql("SELECT SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table GROUP BY DAY(FROM_UNIXTIME(comment_timestamp))")
+    # across all days 
+    all_days = spark.sql("SELECT DATE(FROM_UNIXTIME(comment_timestamp)) as `date`, SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table GROUP BY DATE(FROM_UNIXTIME(comment_timestamp))")
+    all_days.show()
+
     # across all states
-    for state in states:
-        query_string = "SELECT SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table WHERE state = " + state
-        spark.sql(query_string).show()
+    query_string = "SELECT task9_table.state as state, SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table JOIN states_table ON task9_table.state = states_table.value GROUP BY state"
+    spark.sql(query_string).show()
+
+    # for state in states:
+    #     query_string = "SELECT SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table WHERE state = " + state
+    #     spark.sql(query_string).show()
     # across comment score
-    all_comment_score = spark.sql("SELECT SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table JOIN comment_data ON task9_table.id = comment_data.id GROUP BY comment_data.score")
+    all_comment_score = spark.sql("SELECT comment_data.score as comment_score, SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table JOIN comment_data ON task9_table.id = comment_data.id GROUP BY comment_data.score")
+    all_comment_score.show()
     # across story score (submission score)
-    all_submission_score = spark.sql("SELECT SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table JOIN comment_data ON task9_table.id = comment_data.id JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id GROUP BY submission_data.score")
+    all_submission_score = spark.sql("SELECT submission_data.score as submission_score, SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table JOIN comment_data ON task9_table.id = comment_data.id JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id GROUP BY submission_data.score")
+    all_submission_score.show()
 
 def main(context):
     """Main function takes a Spark SQL context."""
@@ -272,6 +282,7 @@ def main(context):
     modelfit()
     task8()
     task9(task6model)
+    task10()
 
 
 if __name__ == "__main__":
