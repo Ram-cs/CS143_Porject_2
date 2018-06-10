@@ -1,4 +1,4 @@
-QUESTION 1: Take a look at labeled_data.csv. Write the functional dependencies 
+QUESTION 1: Take a look at labeled_data.csv. Write the functional dependencies
 implied by the data.
 
 Input_id -> labeldem
@@ -11,21 +11,29 @@ Any combination of AB -> B
 Where A = {Input_id}
 B = {labeldem, labelgop, labeldjt}
 
-QUESTION 2: Take a look at the schema for comments. Forget BCNF and 3NF. Does 
-the data frame look normalized? In other words, is the data frame free of 
-redundancies that might affect insert/update integrity? If not, how would we 
+QUESTION 2: Take a look at the schema for comments. Forget BCNF and 3NF. Does
+the data frame look normalized? In other words, is the data frame free of
+redundancies that might affect insert/update integrity? If not, how would we
 decompose it? Why do you believe the collector of the data stored it in this way?
 
-It is not normalized. For example author + author_flair_text creates 
+It is not normalized. For example author + author_flair_text creates
 redundancies as does subreddit_id + subreddit. To decompose:
 
 Relations with:
-{subreddit_id, subreddit} 
-{author, can_guild, link_id, author_flair_text, author_flair_css_class, 
+{subreddit_id, subreddit}
+{author, can_guild, link_id, author_flair_text, author_flair_css_class,
 author_cakeday}
 {score, controversiality}
-{id, author, subreddit_id, stickied, score, retrieved_on, permalink, parent_id, 
+{id, author, subreddit_id, stickied, score, retrieved_on, permalink, parent_id,
 is_submitter, gilded, edited, created_utc, body}
 
-It was possibly organized this way because the collector wanted everything in 
+It was possibly organized this way because the collector wanted everything in
 one relation for convenience sake.
+
+QUESTION 3:
+This is my input for explain():
+"SELECT data_table.Input_id, data_table.labeldem, data_table.labelgop, data_table.labeldjt, comment_table.body as
+ comment_body FROM data_table JOIN comment_table ON data_table.Input_id = comment_table.id")
+
+ The result of .explain() shows that even though we specific JOIN in our sql query, a underlined BroadcastHashJoin will be run.
+ After reads in all the parquet files, spark will filters out all the rows that is NULL on comment_table.id and all the rows that is NULL on data_table.Input_id. When one of the relation is small enough to fit in memory that is less than the autoBroadcastJoinThreashold. (the data_table relation), spark performs a broadcast hash join. The smaller relation data_table will only be read once and it will be used to create hashtable with key be Input_id and values are all the attributes. The smaller relation will joined with the larger relation in the Mapper phase by using the hashtable on comment_table.id. Hashing comment_table.id will give us the key which will map to a value from data_table.
