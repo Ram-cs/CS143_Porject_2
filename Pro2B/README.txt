@@ -29,3 +29,8 @@ is_submitter, gilded, edited, created_utc, body}
 
 It was possibly organized this way because the collector wanted everything in 
 one relation for convenience sake.
+
+QUESTION 3: Pick one of the joins that you executed for this project. Rerun the 
+join with .explain() attached to it. Include the output. What do you notice? 
+Explain what Spark SQL is doing during the join. Which join algorithm does Spark 
+seem to be using?
