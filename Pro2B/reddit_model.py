@@ -35,17 +35,20 @@ sc.setLogLevel("WARN")
 # sc.addPyFile("cleantext.py")
 # TODO change paths when submitting
 
-# task 1
+# TASK 1
+# Code for task 1...
 
-# comments = sqlContext.read.json("/home/cs143/data/comments-minimal.json.bz2") #gives the attibutes and its type
+comments = sqlContext.read.json("/home/cs143/data/comments-minimal.json.bz2") #gives the attibutes and its type
 # comments = comments.sample(False, 0.02, None) #TODO this only use 20% of data. Remove this when submitting!!
-# submissions = sqlContext.read.json("/home/cs143/data/submissions.json.bz2") #gives the attibutes and its type
-# labeled_data = sqlContext.read.csv("labeled_data.csv", header=True, mode="DROPMALFORMED")
+submissions = sqlContext.read.json("/home/cs143/data/submissions.json.bz2") #gives the attibutes and its type
+labeled_data = sqlContext.read.csv("labeled_data.csv", header=True, mode="DROPMALFORMED")
 
 # make parquet
-# comments.write.parquet("comments") #TODO if you want to keep the 100% data (now we have 2%), rename parquet files to something else
-# labeled_data.write.parquet("labeled_data") #TODO if you want to keep the 100% data (now we have 2%), rename parquet files to something else
-# submissions.write.parquet("submissions") #TODO if you want to keep the 100% data (now we have 2%), rename parquet files to something else
+
+comments.write.parquet("comments") #TODO if you want to keep the 100% data (now we have 2%), rename parquet files to something else
+labeled_data.write.parquet("labeled_data") #TODO if you want to keep the 100% data (now we have 2%), rename parquet files to something else
+submissions.write.parquet("submissions") #TODO if you want to keep the 100% data (now we have 2%), rename parquet files to something else
+
 comments = sqlContext.read.parquet("comments")
 submissions = sqlContext.read.parquet("submissions")
 labeled_data = sqlContext.read.parquet("labeled_data")
@@ -61,30 +64,15 @@ states = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado',
     'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming']
 
 # TASK 1
-# run spark frame
+# Code for task 1...
 spark = SparkSession \
     .builder \
     .appName("Python Spark SQL basic example") \
     .config("spark.some.config.option", "some-value") \
     .getOrCreate()
 
-
-# def comment_laveledData():
-#     df_cmnt = spark.read.json("comments.json")
-#     df_cmnt.show() #show schema
-#     df_cmnt.printSchema() #show attibutes with its type
-
-# def submission_levelData():
-#     df_sb = spark.read.json("submission.json")
-#     df_sb.show()#show schema
-#     df_sb.printSchema() #show attibutes with its type
-
-# def read_csv_file():
-#     df_csv = spark.read.csv('labeled_data.csv')
-#     df_csv.printSchema()
-#     df_csv.describe().show()#give summary that include count, mean, stddev, min, max
-
 # TASK 2
+# Code for task 2...
 
 # functional dependencies implied by the data.
 def task2():
@@ -98,6 +86,8 @@ def task2():
     query = spark.sql("SELECT data_table.Input_id, data_table.labeldem, data_table.labelgop, data_table.labeldjt, comment_table.body as comment_body FROM data_table JOIN comment_table ON data_table.Input_id = comment_table.id")
     query.write.saveAsTable("task2_table")
 
+# TASK 4, 5
+# Code for tasks 4 and 5
 
 def connect_all_string(string_list):
     arr = []
@@ -113,7 +103,9 @@ def connect_all_string(string_list):
     #print(arr, file=open("output1.txt", "a"))
     return ', '.join(arr) #I changed this back to a string of a, b, c, d, e, etc..... Because the form [a,b,c,d,e] is STILL A STRING, not an array.
 
-# task 4 and 5
+# TASK 4, 5
+# Code for tasks 4 and 5
+
 def task4():
     spark.udf.register("sanitize", cleantext.sanitize)  # UDF
     spark.udf.register("connect_all_string", connect_all_string)
@@ -124,7 +116,9 @@ def task4():
 
     #querytask4.show()
 
-#task 6A and 6B
+# TASK 6A, 6B
+# Code for tasks 6A and 6B
+
 def task6():
 
     querytask6 = spark.sql("SELECT Input_id,n_grams , IF(labeldjt='1',1,0) AS positive_djt, IF(labeldjt='-1',1,0) AS negative_djt FROM task4_table")
@@ -140,7 +134,9 @@ def task6():
     task6Result.write.saveAsTable("task6_table")
     return model
 
-#task 7
+# TASK 7
+# Code for task 7
+
 def modelfit():
     # Initialize two logistic regression models.
     # Replace labelCol with the column containing the label, and featuresCol with the column containing the features.
@@ -186,7 +182,10 @@ def modelfit():
     negModel.write().overwrite().save("www/neg.model")
     #return posModel,negModel
 
-    # task 8
+
+# TASK 8
+# Code for task 8
+
 def task8():
     #1
     comments.createOrReplaceTempView("comment_data")
@@ -196,90 +195,81 @@ def task8():
     # sqlDF.show() #debugging purpose
     sqlDF.write.saveAsTable("task8_table")
 
-    #2
-
-    # sqlDF_submission = spark.sql("SELECT title FROM comment_data JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id")
-    # sqlDF_submission.show() #debugging purpose
-    # #sqlDF_submission.write.saveAsTable("task8_timestamp")
-
-    #3
-    # sqlDF_3 = spark.sql("SELECT author_flair_text as state FROM submission_data")
-    # sqlDF_3.show() #debuggine purpose
-    # #sqlDF_3.write.saveAsTable("task8_state")
-
-
+# TASK 9
+# Code for task 9
 
 def task9(task6model):
+    querytask9_0 = spark.sql("SELECT id,comment_timestamp,title,state,comment_body FROM task8_table  WHERE comment_body NOT LIKE '&gt%' AND comment_body NOT LIKE '%/s%'")
+    querytask9_0.write.saveAsTable("task9_table1")
+    querytask9_1 = spark.sql("SELECT id, connect_all_string(sanitize(comment_body)) AS n_grams, comment_timestamp,title,state,comment_body  FROM task9_table1")
+    querytask9_2= querytask9_1.select(split(col("n_grams"), ",\s*").alias("n_grams") ,col("id") ,col("comment_timestamp"),col("title"),col("state"),col("comment_body"))
 
+    task9df = task6model.transform(querytask9_2)
+    task9df.printSchema()
+    task9df = task9df.write.saveAsTable("task9_table2")
+    querytask9_3 = spark.sql("SELECT id,  n_grams, comment_timestamp,title,state,comment_body, features, features AS features_backup  FROM task9_table2")
 
-    # querytask9_0 = spark.sql("SELECT id,comment_timestamp,title,state,comment_body FROM task8_table  WHERE comment_body NOT LIKE '&gt%' AND comment_body NOT LIKE '%/s%'")
-    # querytask9_0.write.saveAsTable("task9_table1")
-    # querytask9_1 = spark.sql("SELECT id, connect_all_string(sanitize(comment_body)) AS n_grams, comment_timestamp,title,state,comment_body  FROM task9_table1")
-    # querytask9_2= querytask9_1.select(split(col("n_grams"), ",\s*").alias("n_grams") ,col("id") ,col("comment_timestamp"),col("title"),col("state"),col("comment_body"))
+    model_pos = CrossValidatorModel.load("www/pos.model")
+    model_neg = CrossValidatorModel.load("www/neg.model")
+    pos_ans = model_pos.transform(querytask9_3).write.saveAsTable("pos_table")
 
-    # task9df = task6model.transform(querytask9_2)
-    # task9df.printSchema()
-    # task9df = task9df.write.saveAsTable("task9_table2")
-    # querytask9_3 = spark.sql("SELECT id,  n_grams, comment_timestamp,title,state,comment_body, features, features AS features_backup  FROM task9_table2")
+    task9df_withPos = spark.sql("SELECT id,comment_timestamp,title,state,comment_body,prediction AS pos, features_backup AS features, probability AS pos_probability  FROM pos_table")
+    task9df_withPos.show()
+    neg_ans = model_neg.transform(task9df_withPos).write.saveAsTable("neg_table")
 
-    # model_pos = CrossValidatorModel.load("www/pos.model")
-    # model_neg = CrossValidatorModel.load("www/neg.model")
-    # pos_ans = model_pos.transform(querytask9_3).write.saveAsTable("pos_table")
+    task9result = spark.sql("SELECT id,comment_timestamp,title,state,comment_body, pos , prediction AS neg FROM neg_table")
 
-    # task9df_withPos = spark.sql("SELECT id,comment_timestamp,title,state,comment_body,prediction AS pos, features_backup AS features, probability AS pos_probability  FROM pos_table")
-    # task9df_withPos.show()
-    # neg_ans = model_neg.transform(task9df_withPos).write.saveAsTable("neg_table")
-
-    # task9result = spark.sql("SELECT id,comment_timestamp,title,state,comment_body, pos , prediction AS neg FROM neg_table")
-
-    # task9result.write.parquet("task9result_parquet") #store parquet
+    task9result.write.parquet("task9result_parquet") #store parquet
 
 
     final_task9result = spark.read.parquet("task9result_parquet")
     final_task9result.write.saveAsTable("task9_table")
     spark.sql("SELECT * FROM task9_table").show()
 
-#task 10
+# TASK 10
+# Code for task 10
 def task10():
     df = spark.createDataFrame(states, StringType()).write.saveAsTable("states_table")
     comments.createOrReplaceTempView("comment_data")
     submissions.createOrReplaceTempView("submission_data")
     # across all posts
     all_posts = spark.sql("SELECT SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as pos_perc, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as neg_perc FROM task9_table")
-    all_posts.show()
+    # all_posts.show()
     all_posts.repartition(1).write.format("com.databricks.spark.csv").option("header", "true").save("all_posts.csv")
 
 
     # across all days 
     all_days = spark.sql("SELECT DATE(FROM_UNIXTIME(comment_timestamp)) as `date`, SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as Positive, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as Negative FROM task9_table GROUP BY DATE(FROM_UNIXTIME(comment_timestamp))")
-    all_days.show()
+    # all_days.show()
     all_days.repartition(1).write.format("com.databricks.spark.csv").option("header", "true").save("all_days.csv")
 
     # across all states
     query_string = "SELECT task9_table.state as state, SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as Positive, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as Negative FROM task9_table JOIN states_table ON task9_table.state = states_table.value GROUP BY state"
     all_states = spark.sql(query_string)
-    all_states.show()
+    # all_states.show()
     all_states.repartition(1).write.format("com.databricks.spark.csv").option("header", "true").save("all_states.csv")
 
     # across comment score
     all_comment_score = spark.sql("SELECT comment_data.score as comment_score, SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as Positive, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as Negative FROM task9_table JOIN comment_data ON task9_table.id = comment_data.id GROUP BY comment_data.score")
-    all_comment_score.show()
+    # all_comment_score.show()
     all_comment_score.repartition(1).write.format("com.databricks.spark.csv").option("header", "true").save("all_comment_score.csv")
 
     # across story score (submission score)
     all_submission_score = spark.sql("SELECT submission_data.score as submission_score, SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as Positive, SUM(CASE WHEN neg = 1 THEN 1 ELSE 0 END) / COUNT(*) as Negative FROM task9_table JOIN comment_data ON task9_table.id = comment_data.id JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id GROUP BY submission_data.score")
-    all_submission_score.show()
+    # all_submission_score.show()
     all_submission_score.repartition(1).write.format("com.databricks.spark.csv").option("header", "true").save("all_submission_score.csv")
 
+    # test = "SELECT submission_data.id as ID, SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) / COUNT(*) as Positive FROM comment_data JOIN task9_table ON comment_data.id = task9_table.id JOIN submission_data ON (Replace(comment_data.link_id, 't3_', '')) = submission_data.id GROUP BY submission_data.id ORDER BY Positive DESC LIMIT 10"
+    # spark.sql(test).show()
 
 def main(context):
     """Main function takes a Spark SQL context."""
     # YOUR CODE HERE
     # YOU MAY ADD OTHER FUNCTIONS AS NEEDED
     task2()
-    task4()
+    task4() #and 5
     task6model = task6()
-    #modelfit()
+    modelfit() #task 7
     task8()
     task9(task6model)
     task10()
@@ -297,353 +287,3 @@ if __name__ == "__main__":
     # sc.addPyFile("cleantext.py")
     main(sqlContext)
 
-
-"""
-#Final Deliverable [[[JUST a ROUGH OUTLET OF CODE]]]
-######## 1 ########
-
-## R CODE FOR GRAPHICS FOR
-## FINAL DELIVERABLE FOR CS143 PROJECT 2B
-
-# If you already have R installed on your home machine, transfer the resulting files
-# to your shared directory and do the visualizations in R on your home system rather than
-# in the VM because R is not installed there.
-
-# R is actually the simplest software for making plots.
-
-##################################################
-# PLOT 1: SENTIMENT OVER TIME (TIME SERIES PLOT)
-###################################################
-
-# This assumes you have a CSV file called "time_data.csv" with the columns:
-# date (like 2018-08-01), Positive, Negative
-# You should use the FULL PATH to the file, just in case.
-
-time.data <- read.csv("time_data.csv", stringsAsFactors=FALSE)
-time.data$date <- as.Date(time.data$date)
-# Fix a small data integrity issue from the data developer.
-time.data <- time.data[time.data$date != "2018-12-31", ]
-
-# Get start and end of time series.
-start <- min(time.data$date)
-end <- max(time.data$date)
-
-# Turn the data into a time series.
-positive.ts <- ts(time.data$Positive, start=start, end=end)
-negative.ts <- ts(time.data$Negative, start=start, end=end)
-
-# Plot it
-ts.plot(positive.ts, negative.ts, col=c("darkgreen", "red"),
-        gpars=list(xlab="Day", ylab="Sentiment", main="President Trump Sentiment on /r/politics Over Time"))
-
-################################################################
-# PLOT 2: SENTIMENT BY STATE (POSITIVE AND NEGATIVE SEPARATELY)
-################################################################
-
-# May need to do
-# install.packages("ggplot2)
-
-# This assumes you have a CSV file called "state_data.csv" with the columns:
-# state, Positive, Negative
-# You should use the FULL PATH to the file, just in case.
-
-library(ggplot2)
-library(dplyr)
-
-state.data <- read.csv("state_data.csv", header=TRUE)
-# rename it due to the format of the state data
-state.data$region <- state.data$state
-chloro <- state.data %>% mutate(region=tolower(region)) %>%
-    right_join(map_data("state"))
-
-ggplot(chloro, aes(long, lat)) +
-    geom_polygon(aes(group=group, fill=Positive)) +
-    coord_quickmap() +
-    scale_fill_gradient(low="#FFFFFF",high="#006400") +
-    ggtitle("Positive Trump Sentiment Across the US")
-
-ggplot(chloro, aes(long, lat)) +
-    geom_polygon(aes(group=group, fill=Negative)) +
-    coord_quickmap() +
-    scale_fill_gradient(low="#FFFFFF",high="#FF0000") +
-    ggtitle("Negative Trump Sentiment Across the US")
-
-################################################################
-# PLOT 3: SENTIMENT DIFF BY STATE
-################################################################
-chloro$Difference <- chloro$Positive - chloro$Negative
-ggplot(chloro, aes(long, lat)) +
-    geom_polygon(aes(group=group, fill=Difference)) +
-    coord_quickmap() +
-    scale_fill_gradient(low="#FFFFFF",high="#000000") +
-    ggtitle("Difference in Sentiment Across the US")
-
-##################################
-# PART 4 SHOULD BE DONE IN SPARK
-##################################
-
-########################################
-# PLOT 5A: SENTIMENT BY STORY SCORE
-########################################
-# What is the purpose of this? It helps us determine if the story score
-# should be a feature in the model. Remember that /r/politics is pretty
-# biased.
-
-# Assumes a CSV file called submission_score.csv with the following coluns
-# submission_score, Positive, Negative
-
-submission.data <- read.csv("submission_score.csv", quote="", header=TRUE)
-plot(Positive~story_score, data=story.data, col='darkgreen', pch='.',
-     main="Sentiment By Score on Submission")
-points(Negative~story_score, data=story.data, col='red', pch='.')
-
-
-########################################
-# PLOT 5B: SENTIMENT BY COMMENT SCORE
-########################################
-# What is the purpose of this? It helps us determine if the story score
-# should be a feature in the model. Remember that /r/politics is pretty
-# biased.
-
-# Assumes a CSV file called comment_score.csv with the following columns
-# comment_score, Positive, Negative
-
-comment.data <- read.csv("comment_score.csv", quote="", header=TRUE)
-plot(Positive~comment_score, data=comment.data, col='darkgreen', pch='.',
-     main="Sentiment By Score on Comments")
-points(Negative~comment_score, data=comment.data, col='red', pch='.')
-
-
-
-###############################
-# ANOTHER SAMPLE
-####################################
-# May first need:
-# In your VM: sudo apt-get install libgeos-dev (brew install on Mac)
-# pip3 install https://github.com/matplotlib/basemap/archive/v1.1.0.tar.gz
-
-import matplotlib.pyplot as plt
-import pandas as pd
-import datetime
-import numpy as np
-
-from mpl_toolkits.basemap import Basemap as Basemap
-from matplotlib.colors import rgb2hex
-from matplotlib.patches import Polygon
-
-"""
-"""
-    IMPORTANT
-    This is EXAMPLE code.
-    There are a few things missing:
-    1) You may need to play with the colors in the US map.
-    2) This code assumes you are running in Jupyter Notebook or on your own system.
-    If you are using the VM, you will instead need to play with writing the images
-    to PNG files with decent margins and sizes.
-    3) The US map only has code for the Positive case. I leave the negative case to you.
-    4) Alaska and Hawaii got dropped off the map, but it's late, and I want you to have this
-    code. So, if you can fix Hawaii and Alask, ExTrA CrEdIt. The source contains info
-    about adding them back.
-    """
-
-
-"""
-    PLOT 1: SENTIMENT OVER TIME (TIME SERIES PLOT)
-"""
-"""
-# Assumes a file called time_data.csv that has columns
-# date, Positive, Negative. Use absolute path.
-
-ts = pd.read_csv("time_data.csv")
-# Remove erroneous row.
-ts = ts[ts['date'] != '2018-12-31']
-
-plt.figure(figsize=(12,5))
-ts.date = pd.to_datetime(ts['date'], format='%Y-%m-%d')
-ts.set_index(['date'],inplace=True)
-
-ax = ts.plot(title="President Trump Sentiment on /r/politics Over Time",
-             color=['green', 'red'],
-             ylim=(0, 1.05))
-ax.plot()
-
-"""
-"""
-    PLOT 2: SENTIMENT BY STATE (POSITIVE AND NEGATIVE SEPARATELY)
-    # This example only shows positive, I will leave negative to you.
-    """
-"""
-# This assumes you have a CSV file called "state_data.csv" with the columns:
-# state, Positive, Negative
-#
-# You should use the FULL PATH to the file, just in case.
-
-state_data = pd.read_csv("state_data.csv")
-
-"""
-"""
-    You also need to download the following files. Put them somewhere convenient:
-    https://github.com/matplotlib/basemap/blob/master/examples/st99_d00.shp
-    https://github.com/matplotlib/basemap/blob/master/examples/st99_d00.dbf
-    https://github.com/matplotlib/basemap/blob/master/examples/st99_d00.shx
-    """
-"""
-# Lambert Conformal map of lower 48 states.
-m = Basemap(llcrnrlon=-119, llcrnrlat=22, urcrnrlon=-64, urcrnrlat=49,
-            projection='lcc', lat_1=33, lat_2=45, lon_0=-95)
-shp_info = m.readshapefile('/path_to/st99_d00','states',drawbounds=True)  # No extension specified in path here.
-pos_data = dict(zip(state_data.state, state_data.Positive))
-neg_data = dict(zip(state_data.state, state_data.Negative))
-
-# choose a color for each state based on sentiment.
-pos_colors = {}
-statenames = []
-pos_cmap = plt.cm.Greens # use 'hot' colormap
-
-vmin = 0; vmax = 1 # set range.
-for shapedict in m.states_info:
-    statename = shapedict['NAME']
-    # skip DC and Puerto Rico.
-    if statename not in ['District of Columbia', 'Puerto Rico']:
-        pos = pos_data[statename]
-        pos_colors[statename] = pos_cmap(1. - np.sqrt(( pos - vmin )/( vmax - vmin)))[:3]
-    statenames.append(statename)
-# cycle through state names, color each one.
-
-# POSITIVE MAP
-ax = plt.gca() # get current axes instance
-for nshape, seg in enumerate(m.states):
-    # skip Puerto Rico and DC
-    if statenames[nshape] not in ['District of Columbia', 'Puerto Rico']:
-        color = rgb2hex(pos_colors[statenames[nshape]])
-        poly = Polygon(seg, facecolor=color, edgecolor=color)
-        ax.add_patch(poly)
-plt.title('Positive Trump Sentiment Across the US')
-plt.show()
-
-
-# SOURCE: https://stackoverflow.com/questions/39742305/how-to-use-basemap-python-to-plot-us-with-50-states
-# (this misses Alaska and Hawaii. If you can get them to work, EXTRA CREDIT)
-
-"""
-"""
-    PART 4 SHOULD BE DONE IN SPARK
-    """
-
-"""
-    PLOT 5A: SENTIMENT BY STORY SCORE
-"""
-"""
-# What is the purpose of this? It helps us determine if the story score
-# should be a feature in the model. Remember that /r/politics is pretty
-# biased.
-
-# Assumes a CSV file called submission_score.csv with the following coluns
-# submission_score, Positive, Negative
-
-story = pd.read_csv("submission_score.csv")
-plt.figure(figsize=(12,5))
-fig = plt.figure()
-ax1 = fig.add_subplot(111)
-
-ax1.scatter(story['submission_score'], story['Positive'], s=10, c='b', marker="s", label='Positive')
-ax1.scatter(story['submission_score'], story['Negative'], s=10, c='r', marker="o", label='Negative')
-plt.legend(loc='lower right');
-
-plt.xlabel('President Trump Sentiment by Submission Score')
-plt.ylabel("Percent Sentiment")
-plt.show()
-"""
-"""
-    PLOT 5B: SENTIMENT BY COMMENT SCORE
-"""
-"""
-# What is the purpose of this? It helps us determine if the comment score
-# should be a feature in the model. Remember that /r/politics is pretty
-# biased.
-
-# Assumes a CSV file called comment_score.csv with the following columns
-# comment_score, Positive, Negative
-
-story = pd.read_csv("comment_score.csv")
-plt.figure(figsize=(12,5))
-fig = plt.figure()
-ax1 = fig.add_subplot(111)
-
-ax1.scatter(story['comment_score'], story['Positive'], s=10, c='b', marker="s", label='Positive')
-ax1.scatter(story['comment_score'], story['Negative'], s=10, c='r', marker="o", label='Negative')
-plt.legend(loc='lower right');
-
-plt.xlabel('President Trump Sentiment by Comment Score')
-plt.ylabel("Percent Sentiment")
-plt.show()
-
-"""
-
-
-
-#Create a time series plot of positive and negative sentiment. This plot should contain two lines,
-# one for positive and one for negative. It must have data as an X axis and the percentage of comments
-# classified as each sentiment on the Y axis.
-"""
-import numpy as np
-from matplotlib import pyplot as plt
-X, Y = np.loadtxt('examplefile.txt',
-                  unpack=True,
-                  delimiter=',') #you can also load CSV file as well
-
-plt.title(" time series plot of positive and negative sentiment")
-plt.xlabel("data") #label x axis
-plt.ylabel("percentage of comments") #label y axix
-plt.plot(X, Y) #ploting graph
-plt.savefig("myfile.png") #saving file
-plt.show() #showing graph
-
-
-######## 2 ##########
-#Create 2 maps of the United States: one for positive sentiment and one for negative sentiment. Color the states by the percentage.
-
-#to do this we may have to use CHOROPLOT map that generate USA map based on the States
-
-
-######## 3 ##########
-#Create a third map of the United States that computes the difference: %Positive - %Negative.
-
-######## 4 ##########
-#Give a list of the top 10 positive stories (have the highest percentage of positive comments)
-# and the top 10 negative stories (have the highest percentage of negative comments).
-
-some_list = [-5, -1, -13, -11, 4, 8, 16, 32]
-max([n for n in some_list if n<0])
-#will output -1
-max([n for n in some_list  if n>0])
-#output 32
-
-
-######## 5 ##########
-#Create a scatterplot where the X axis is the Reddit score
-x = [2,3,4,3,4,5]
-y = [4,3,2,2,3,3]
-plt.scatter(x, y, label="some label", color="k")
-
-plt.title(" scatter graph")
-plt.xlabel("Reddit Score") #label x axis
-plt.ylabel("some") #Don't know if need this one??
-plt.plot(X, Y) #ploting graph
-plt.savefig("myfile.png") #saving file
-plt.show() #showing graph
-
-
-
-
-
-######## 6 ##########
-#Any other plots that make sense will receive extra credit.
-
-######## 7 ##########
-#Extra Credit: Produce the ROC curves for YOUR classifiers and compute the Area Under the Curve for each one, which is a measure of accuracy
-
-
-######## 8 ##########
-#Write a paragraph summarizing your findings. What does /r/politics think about President Trump? Does this vary by state? Over time? By story/submission?
-"""
